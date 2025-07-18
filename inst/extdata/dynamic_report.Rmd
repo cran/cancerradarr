@@ -1,0 +1,295 @@
+---
+title: "Cancer RADAR report"
+author: "`r Sys.info()[['user']]`"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output: html_notebook
+runtime: shiny
+params:
+  filename.out: ''
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r libraries, echo=FALSE, warning=FALSE, message=FALSE}
+library('tidyverse')
+library('plotly')
+library('cancerradarr')
+```
+
+```{r input data, echo=FALSE}
+filename.out <- params$filename.out
+# filename.out <- '~/Documents/gitlab/cancerradarr/inst/extdata/ex_cancerRADAR_output.xlsx'
+```
+
+## Scatter plot
+
+```{r, echo=FALSE}
+dat.01.iso3 <- read_cancerradar_output_01(filename.out, aggr.level = 'cob_iso3') 
+dat.01.unreg <- read_cancerradar_output_01(filename.out, aggr.level = 'un_region') 
+dat.01.unsubreg <- read_cancerradar_output_01(filename.out, aggr.level = 'un_subregion') 
+dat.01.hdi <- read_cancerradar_output_01(filename.out, aggr.level = 'hdi_cat') 
+dat.01.burden <- read_cancerradar_output_01(filename.out, aggr.level = 'asr_rank_cat') 
+dat.01.any <- read_cancerradar_output_01(filename.out, aggr.level = 'any_migr') 
+
+## check migrant population at risk availability
+has.py.migrant <- 
+  any(!is.na(dat.01.any |> filter(index == 'sir', reg_label %in% c('migrant'), ref == 'registry', can != 'allC') |> pull('est')))
+```
+
+```{r, echo=FALSE}
+index.names.01 <- 
+  if(has.py.migrant){
+    c('cir', 'cirr', 'cird', 'asir', 'asirr', 'asird', 'sir', 'pir', 'py', 'n')
+  } else {
+    c('pir', 'n')
+  }
+index.x100000.01 <- c('cir', 'cird', 'asir', 'asird')
+aggr.names.01 <- 
+  c(
+    'country', 'UN region', 'UN subregion', 'HDI category', 'burden in country of origin', 'any migration background'
+  )
+
+inputPanel(
+  radioButtons('aggr_', label = 'Aggregation level', choices = aggr.names.01, selected = 'UN region'),
+  checkboxInput('ref_', label = 'Add general population', value = TRUE)
+)
+
+inputPanel(
+  selectInput("x_sex_", label = "X sex",
+              choices = c('female', 'male'), selected = 'female'),
+  selectInput("x_can_", label = "X cancer",
+              choices = c('allC', 'cx', 'liv', 'stm', 'brea', 'colo', 'lun'), selected = ifelse(has.py.migrant, 'allC', 'cx') ),
+  selectInput("x_ref_", label = "X reference data",
+              choices = c('registry', 'globocan national', 'globocan eu27', 'globocan euUN'), selected = 'registry'),
+  selectInput("x_index_", label = "X index",
+              choices = index.names.01, selected = ifelse(has.py.migrant, 'sir', 'pir')),
+  selectInput("x_trans_", label = "X transformation",
+              choices = c('identity', 'log', 'log10', 'log2'), selected = 'identity'),
+  checkboxInput("x_ci_", label = 'X confidence interval', value = FALSE)
+)
+
+inputPanel(
+  selectInput("y_sex_", label = "Y sex",
+              choices = c('female', 'male'), selected = 'female'),
+  selectInput("y_can_", label = "Y cancer",
+              choices = c('allC', 'cx', 'liv', 'stm', 'brea', 'colo', 'lun'), selected = ifelse(has.py.migrant, 'allC', 'brea')),
+  selectInput("y_ref_", label = "Y reference data",
+              choices = c('registry', 'globocan national', 'globocan eu27', 'globocan euUN'), selected = 'registry'),
+  selectInput("y_index_", label = "Y index",
+              choices = index.names.01, selected = ifelse(has.py.migrant, 'sir', 'pir')),
+  selectInput("y_trans_", label = "Y transformation",
+              choices = c('identity', 'log', 'log10', 'log2'), selected = 'identity'),
+  checkboxInput("y_ci_", label = 'Y confidence interval', value = FALSE)
+)
+
+renderPlotly({
+  dat.01 <- 
+    switch(
+      input$aggr_,
+      'country' = dat.01.iso3,
+      'UN region' = dat.01.unreg, 
+      'UN subregion' = dat.01.unsubreg, 
+      'HDI category' = dat.01.hdi,
+      'burden in country of origin' = dat.01.burden,
+      'any migration background' = dat.01.any
+    )
+  
+  gg.dat.01 <-
+    left_join(
+      dat.01 %>% 
+        dplyr::filter(
+        sex == as.character(input$x_sex_),
+        can == as.character(input$x_can_),
+        ref == as.character(input$x_ref_),
+        index == as.character(input$x_index_)
+      ),
+      dat.01 %>% 
+        dplyr::filter(
+        sex == as.character(input$y_sex_),
+        can == as.character(input$y_can_),
+        ref == as.character(input$y_ref_),
+        index == as.character(input$y_index_)
+      ),
+      by = c('reg_label')
+    ) |>
+    filter(
+      !is.na(est.x),
+      !is.na(est.y)
+    )
+  
+  gg.01 <-
+    ggplot(aes(x = est.x, y = est.y, label = reg_label, colour = reg_label), data = gg.dat.01 %>% filter(reg_label != 'general population')) +
+    (if(input$ref_){geom_hline(aes(yintercept = est.y), data = gg.dat.01 %>% filter(reg_label == 'general population'), show.legend = FALSE, linetype = 2)}) +
+    (if(input$ref_){geom_vline(aes(xintercept = est.x), data = gg.dat.01 %>% filter(reg_label == 'general population'), show.legend = FALSE, linetype = 2)}) +
+    (if(input$x_ci_){geom_segment(aes(y = est.y, yend = est.y, x = lci.x, xend = uci.x))}) + 
+    (if(input$y_ci_){geom_segment(aes(y = lci.y, yend = uci.y, x = est.x, xend = est.x))}) +
+    geom_point() +
+    scale_x_continuous(
+      paste0(as.character(input$x_index_), ' - ', as.character(input$x_can_), ', ', as.character(input$x_sex_), if(as.character(input$x_index_) %in% index.x100000.01){' (per 100.000 person.year)'}),
+      trans = as.character(input$x_trans_),
+      labels = if(as.character(input$x_index_) %in% index.x100000.01) {function(x) scales::comma(x, scale = 100000)} else {function(x) scales::comma(x)}
+    ) +
+    scale_y_continuous(
+      paste0(as.character(input$y_index_), ' - ', as.character(input$y_can_), ', ', as.character(input$y_sex_), if(as.character(input$y_index_) %in% index.x100000.01){' (per 100.000 person.year)'}),
+      trans = as.character(input$y_trans_),
+      labels = if(as.character(input$y_index_) %in% index.x100000.01) {function(x) scales::comma(x, scale = 100000)} else {function(x) scales::comma(x)}
+    ) +
+    labs(
+      colour = as.character(input$aggr_)
+    ) +
+    theme_light()
+
+  plotly::ggplotly(gg.01)
+})
+```
+
+## Age specific incidence / proportion rates
+
+```{r, echo=FALSE}
+dat.02.iso3 <- read_cancerradar_output_02(filename.out, aggr.level = 'cob_iso3')
+dat.02.unreg <- read_cancerradar_output_02(filename.out, aggr.level = 'un_region')
+dat.02.unsubreg <- read_cancerradar_output_02(filename.out, aggr.level = 'un_subregion')
+dat.02.hdi <- read_cancerradar_output_02(filename.out, aggr.level = 'hdi_cat')
+dat.02.burden <- read_cancerradar_output_02(filename.out, aggr.level = 'asr_rank_cat')
+dat.02.any <- read_cancerradar_output_02(filename.out, aggr.level = 'any_migr')
+```
+
+```{r, echo=FALSE}
+index.names.02 <- 
+  if(has.py.migrant){
+    c('ir', 'pr')
+  } else {
+    c('pr')
+  }
+  
+index.x100000.02 <- c('ir')
+
+inputPanel(
+  radioButtons('aggr.02_', label = 'Aggregation level', choices = aggr.names.01, selected = 'any migration background'),
+  checkboxInput('ref.02_', label = 'Add general population', value = TRUE)
+)
+
+inputPanel(
+  selectInput("sex_", label = "sex",
+              choices = c('female', 'male'), selected = 'female'),
+  selectInput("can_", label = "cancer",
+              choices = c('allC', 'cx', 'liv', 'stm', 'brea', 'colo', 'lun'), selected = ifelse(has.py.migrant, 'allC', 'brea')),
+  selectInput("index_", label = "index",
+              choices = index.names.02, selected = ifelse(has.py.migrant, 'ir', 'pr')),
+  selectInput("trans_", label = "transformation",
+              choices = c('identity', 'log', 'log10', 'log2'), selected = 'identity'),
+  checkboxInput("ci_", label = 'confidence interval', value = FALSE)
+)
+
+renderPlotly({
+  dat.02 <-
+    switch(
+      input$aggr.02_,
+      'country' = dat.02.iso3,
+      'UN region' = dat.02.unreg,
+      'UN subregion' = dat.02.unsubreg,
+      'HDI category' = dat.02.hdi,
+      'burden in country of origin' = dat.02.burden,
+      'any migration background' = dat.02.any
+    )
+
+  gg.dat.02 <-
+    dat.02 %>%
+      dplyr::filter(
+      sex == as.character(input$sex_),
+      can == as.character(input$can_),
+      index == as.character(input$index_)
+    ) |>
+    filter(
+      !is.na(est)
+    )
+
+  gg.02 <-
+    ggplot(aes(x = ageg_mid, y = est, label = reg_label, group = reg_label, colour = reg_label), data = gg.dat.02 %>% dplyr::filter(reg_label != 'general population')) +
+    (if(input$ref.02_ & input$ci_){geom_ribbon(aes(x = ageg_mid, ymin = lci, ymax = uci, group = reg_label), alpha = .2, colour = NA, fill = 'black', data = gg.dat.02 %>% filter(reg_label == 'general population'), inherit.aes = FALSE, show.legend = FALSE)}) +
+    (if(input$ref.02_){geom_line(aes(x = ageg_mid, y = est, group = reg_label), linetype = 2, color = 'black', data = gg.dat.02 %>% filter(reg_label == 'general population'), inherit.aes = FALSE, show.legend = FALSE)}) +
+    (if(input$ci_){geom_ribbon(aes(ymin = lci, ymax = uci, fill = reg_label), alpha = .2, colour = NA)}) +
+    geom_line() +
+    scale_y_continuous(
+      paste0(as.character(input$index_), ' - ', as.character(input$can_), ', ', as.character(input$sex_), if(as.character(input$index_) %in% index.x100000.02){' (per 100.000 person.year)'}),
+      trans = as.character(input$trans_),
+      labels = if(as.character(input$index_) %in% index.x100000.02) {function(x) scales::comma(x, scale = 100000)} else {function(x) scales::comma(x)}
+    ) +
+    labs(
+      colour = as.character(input$aggr.02_),
+      fill = as.character(input$aggr.02_),
+      x = 'Age (years)'
+    ) +
+    theme_light()
+
+  plotly::ggplotly(gg.02)
+})
+```
+
+## ASIR for different cancer types stratified by migration background
+
+
+```{r, echo=FALSE}
+aggr.names.03 <- 
+  c(
+    'country', 'UN region', 'UN subregion', 'HDI category', 'burden in country of origin', 'any migration background'
+  )
+
+inputPanel(
+  radioButtons('aggr.03_', label = 'Aggregation level', choices = aggr.names.03, selected = 'any migration background'),
+  checkboxInput('ref.03_', label = 'Add general population', value = TRUE)
+)
+
+inputPanel(
+  selectInput("sex.03_", label = "sex",
+              choices = c('female', 'male'), selected = 'female'),
+  checkboxGroupInput("can.03_", "cancer",
+              choices = c('allC', 'cx', 'liv', 'stm', 'brea', 'colo', 'lun'), selected = c('cx', 'brea')),
+  selectInput("trans.03_", label = "transformation",
+              choices = c('identity', 'log', 'log10', 'log2'), selected = 'log10'),
+  checkboxInput("ci.03_", label = 'confidence interval', value = FALSE)
+)
+
+renderPlotly({
+  dat.03 <- 
+    switch(
+      input$aggr.03_,
+      'country' = dat.01.iso3,
+      'UN region' = dat.01.unreg, 
+      'UN subregion' = dat.01.unsubreg, 
+      'HDI category' = dat.01.hdi,
+      'burden in country of origin' = dat.01.burden,
+      'any migration background' = dat.01.any
+    )
+  
+  gg.dat.03 <-
+    dat.03 |> 
+      dplyr::filter(
+      sex == as.character(input$sex.03_),
+      can %in% as.character(input$can.03_),
+      index == 'asir'
+    ) |>
+    filter(
+      !is.na(est)
+    )
+
+  gg.03 <-
+    gg.dat.03 |>
+    ggplot(aes(x = can, y = est, color = reg_label)) +
+    geom_point(aes(shape = (reg_label == 'general population')), size = 3, show.legend = FALSE) +
+    (if(input$ci.03_){geom_segment(aes(y = lci, yend = uci, x = can, xend = can))}) +
+    scale_y_continuous(trans = as.character(input$trans.03_), labels = function(.x) scales::comma(.x, scale = 100000)) +
+    scale_shape_manual(values = c(6, 19)) +
+    
+    labs(x = 'Cancer type', y = 'ASIR per 100.000 person.year', color = 'Population') + 
+    theme_light() +
+    theme(
+      legend.background = element_rect(fill = 'white', colour = 'lightgrey')
+    ) +
+    guides(shape = FALSE)
+
+  plotly::ggplotly(gg.03)
+})
+```

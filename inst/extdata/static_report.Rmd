@@ -1,0 +1,501 @@
+---
+title: "Cancer RADAR report"
+author: "`r Sys.info()[['user']]`"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+params:
+  filename.out: ''
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    toc_depth: 4
+    df_print: paged
+    code_folding: hide
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+This standardized report is designed to facilitate the visual assessment of data accuracy.
+Each graph is accompanied by a brief explanatory text to aid in interpretation.
+On the left, a dropdown menu allows you to switch between graphs.
+
+**Abbreviations:**
+
+
+| abbreviation | meaning                  |
+|:-------------|:-------------------------|
+| can          | cancer                   |
+| tot          | total                    |
+| py           | person-years             |
+| dco          | death certificate only   |
+| mv           | microscopically verified |
+
+
+## Read the data
+
+```{r, echo=FALSE, eval=TRUE, warning=FALSE, message=FALSE}
+# filename.out <- '~/Documents/gitlab/cancerradarr/inst/extdata/ex_cancerRADAR_output.xlsx'
+```
+
+
+```{r, echo=TRUE, warning=FALSE, message=FALSE}
+library('tidyverse')
+
+filename.out <- params$filename.out
+
+cat('\nGenerated using:', filename.out)
+
+dat.01.iso3 <- read_cancerradar_output_01(filename.out, aggr.level = 'cob_iso3') 
+dat.01.unreg <- read_cancerradar_output_01(filename.out, aggr.level = 'un_region') 
+dat.01.unsubreg <- read_cancerradar_output_01(filename.out, aggr.level = 'un_subregion') 
+dat.01.hdi <- read_cancerradar_output_01(filename.out, aggr.level = 'hdi_cat') 
+dat.01.burden <- read_cancerradar_output_01(filename.out, aggr.level = 'asr_rank_cat') 
+dat.01.any <- read_cancerradar_output_01(filename.out, aggr.level = 'any_migr') 
+
+## check migrant population at risk availability
+has.py.migrant <- 
+  any(!is.na(dat.01.any |> filter(index == 'sir', reg_label %in% c('migrant'), ref == 'registry', can != 'allC') |> pull('est')))
+```
+
+## Generic tables
+
+### Percentage of missing country of birth
+
+**Interpretation:**
+This table shows the proportion of missing data for the "country of birth" variable.
+
+**Points to consider:**
+The proportion of missing data in the cancer registry should ideally be minimized. A high proportion of missing data may indicate incomplete records or highlight the need to review the data collection process. Excessive missing data can bias the analysis and compromise the validity of the results.
+
+
+```{r, echo=TRUE, rows.print = 10}
+dat.01.any |>
+  filter(
+    ageg == 'total',
+    ref == 'registry',
+    index %in% c('n', 'py', 'n_mv', 'n_dco')
+  ) |>
+  select(- c('uci', 'lci')) |>
+  pivot_wider(names_from = c('index', 'reg_label'), values_from = 'est') |>
+  group_by(sex, can) |>
+  mutate(
+    py_Missing = replace_na(py_Missing, 0),
+    n_Missing = replace_na(n_Missing, 0),
+    n_dco_Missing = replace_na(n_dco_Missing, 0),
+    n_mv_Missing = replace_na(n_mv_Missing, 0),
+    perc_n_Missing = round(n_Missing / (n_Missing + n_migrant + `n_general population`) * 100, 1),
+    perc_py_Missing = round(py_Missing / (py_Missing + py_migrant + `py_general population`) * 100, 1),
+    perc_n_dco_Missing = round(n_dco_Missing / (n_dco_Missing + n_dco_migrant + `n_dco_general population`) * 100, 1),
+    perc_n_mv_Missing = round(n_mv_Missing / (n_mv_Missing + n_mv_migrant + `n_mv_general population`) * 100, 1),
+    tot_n = n_Missing + n_migrant + `n_general population`,
+    tot_n_dco = n_dco_Missing + n_dco_migrant + `n_dco_general population`,
+    tot_n_mv = n_mv_Missing + n_mv_migrant + `n_mv_general population`,
+    tot_py = py_Missing + py_migrant + `py_general population`
+  ) |>
+  select(
+    sex, can, 
+    `n tot` = tot_n, `% n missing` = perc_n_Missing, 
+    `py tot` = tot_py, `% py missing` = perc_py_Missing,
+    `n dco tot` = tot_n_dco, `% n dco missing` = perc_n_dco_Missing,
+    `n mv tot` = tot_n_mv, `% n mv missing` = perc_n_mv_Missing
+    ) |>
+  arrange(can, sex) |>
+  DT::datatable()
+```
+
+### Percentage of DCO and MV
+
+**Interpretation:**
+This table shows the proportions of death-certificate-only (DCO) and microscopically verified (MV) cases for each cancer type.
+
+**Points to consider:**
+The proportion of DCO and MV are indicators of data quality. 
+
+```{r, echo=TRUE, rows.print = 10}
+dat.01.any |>
+  filter(
+    ageg == 'total',
+    ref == 'registry',
+    index %in% c('n', 'n_mv', 'n_dco')
+  ) |>
+  select(- c('uci', 'lci')) |>
+  group_by(sex, can, index) |>
+  summarise(est = sum(est, na.rm = TRUE), .groups = 'drop') |>
+  pivot_wider(names_from = c('index'), values_from = 'est') |>
+  mutate(
+    perc_n_dco = round(n_dco / n * 100, 1),
+    perc_n_mv = round(n_mv / n * 100, 1),
+  ) |>
+  select(
+    sex, can, 
+    `n tot` = n,
+    `n dco tot` = n_dco, `% n dco` = perc_n_dco,
+    `n mv tot` = n_mv, `% n mv` = perc_n_mv
+    ) |>
+  arrange(can, sex) |>
+  DT::datatable()
+```
+
+### Overall number of cancer among individuals with a migration background.
+
+**Interpretation:** 
+This table presents the total number of cancer cases by type, over a five-year period, among individuals with a migration background.
+
+**Points to consider:**
+This table is useful for consistency checks—for example, verifying that the total number of cancer cases among individuals with a migration background does not exceed the overall totals in the general population.
+
+```{r, echo=TRUE, rows.print = 10}
+dat.01.any |>
+  filter(
+    reg_label == 'migrant',
+    ageg == 'total',
+    ref == 'registry',
+    index %in% c('n', 'py')
+  ) |>
+  select(reg_label, sex, can, index, est) |>
+  pivot_wider(names_from = 'index', values_from = 'est') |>
+  DT::datatable()
+```
+
+### Number of cancer by UN subregion
+
+**Interpretation:**
+This table displays the total number of cancer cases and the corresponding population at risk for each cancer type over a five-year period, stratified by UN region, along with an additional “Missing” category.
+
+**Points to consider:**
+This table can help verify that the distribution of cancer cases and population at risk aligns with the largest expected geographical region. For instance, if historical migration patterns suggest that individuals from X-country (part of X-region) are most prevalent in your host country, you would anticipate that population to bear the highest cancer burden and represent the largest share of the population at risk.
+
+By clicking the "next" button at the bottom of the table, you can also identify which countries contribute the least to the cancer burden and population at risk in your area.
+
+
+```{r, echo=TRUE, rows.print = 10}
+dat.01.unsubreg |>
+  filter(
+    ageg == 'total',
+    ref == 'registry',
+    index %in% c('n', 'py')
+  ) |>
+  select(un_subregion = reg_label, sex, can, index, est) |>
+  pivot_wider(names_from = 'index', values_from = 'est') |>
+  arrange(desc(n)) |>
+  DT::datatable()
+```
+
+### Number of cancer by birth country
+
+*Note that these table will be displayed only if aggregation per country of birth has been included in the output table*
+
+**Interpretation:** 
+This table shows the total number of cancer cases and the population at risk for each cancer type over a five-year period, stratified by birth country.
+
+**Points to consider:**
+Ensure that the distribution of cancer cases and population at risk corresponds to the largest expected birth countries in your area. For instance, if historical migration patterns suggest that individuals from X-country are prevalent in your host country, you would anticipate this group to bear the greatest cancer burden (i.e., the highest number of cases) and represent the largest share of the population at risk.
+
+By clicking the "next" button at the bottom of the table, you can also identify which countries contribute the least to the cancer burden and population at risk in your area.
+
+```{r, echo=TRUE, rows.print = 11}
+if(nrow(dat.01.iso3)) {
+  dat.01.iso3 |>
+    filter(
+      ageg == 'total',
+      ref == 'registry',
+      index %in% c('n', 'py')
+    ) |>
+    select(reg_label, sex, can, index, est) |>
+    pivot_wider(names_from = 'index', values_from = 'est') |>
+    group_by(sex, can) |>
+    arrange(desc(n)) |>
+    ungroup() |>
+    DT::datatable()
+}
+```
+
+### Number of cancer by cancer-specific risk in the birth country
+
+**Interpretation:**
+This table displays the total number of cancer cases and population at risk for each respective cancer type, over a 5-year period, stratified by the cancer-specific risk in the birth country. Categories are based on the world-quartiles of cancer risk for the respective cancer type in the birth country.
+
+**Points to consider:**
+Our hypothesis is that individuals with a migration background from areas with the highest cancer risk globally (i.e., the top quartile, 75%-100%) will show the largest contribution to cancer cases. If this is true, we expect to see the highest number of cancer cases in these quartiles in this table.
+
+
+```{r, echo=TRUE, rows.print = 10}
+dat.01.burden |>
+  filter(
+    ageg == 'total',
+    ref == 'registry',
+    index %in% c('n', 'py')
+  ) |>
+  select(burden_in_country_of_origin = reg_label, sex, can, index, est) |>
+  pivot_wider(names_from = 'index', values_from = 'est') 
+```
+
+## Generic graphs
+
+### ASIR for different cancer types stratified by migration background
+
+**Note**
+This graph will only be displayed if the migrant population at risk (PY) is available in the data. 
+
+**Interpretation:**
+This graph displays the age-standardized incidence rate (ASIR) per 100,000 person-years on the y-axis, with different cancer types along the x-axis. Circles represent the ASIR in the general population, while triangles represent the ASIR among individuals with a migration background. Blue represents risk for the male population, and pink for the female population.
+In this context, the general population refers to the incidence in the host population covered by your cancer registry. The script identifies the host country using the information provided in the 'data_info' sheet.
+
+
+```{r }
+if(has.py.migrant){
+  dat.01.any |>
+    filter(index == 'asir', reg_label %in% c('migrant', 'general population')) |>
+    ggplot(aes(x = can, y = est, ymin = lci, ymax = uci, color = sex, shape = reg_label)) +
+    geom_pointrange(size = 1) +
+    scale_y_continuous(trans = 'log10', labels = function(.x) scales::comma(.x, scale = 100000)) +
+    scale_color_manual(values = c(female = '#dd1c77', male = '#3182bd')) + 
+    labs(x = 'Cancer type', y = 'ASIR per 100.000 person.year', color = 'Sex', shape = 'Population') + 
+    theme_minimal() +
+    theme(
+      legend.background = element_rect(fill = 'white', colour = 'lightgrey')
+    )
+}
+```
+
+### ASIR for different cancer types stratified by cancer-specific risk in the birth country 
+
+**Note**
+This graph will only be displayed if the migrant population at risk (PY) is available in the data. 
+
+**Interpretation:**
+This graph displays the age-standardized incidence rate (ASIR) per 100,000 person-years on the y-axis, with different cancer types along the x-axis. The solid circles represent the ASIR in the general population, while the open symbols represent the ASIR among individuals with a migration background, stratified by cancer-specific risk in the birth country. Blue represents risk for the male population, and pink for the female population.
+
+In this context, the general population refers to the incidence in the host population covered by your cancer registry. The script identifies the host country using the information provided in the 'data_info' sheet.
+
+The cancer-specific risk in the birth country is categorized based on the global quartiles of cancer risk for each respective cancer type. Refer to the data dictionary (typing `cancerradarr::open_canradar_dictionary()` in `R`) for more details on the categories and the cutoffs used for each quartile.
+
+
+```{r }
+if(has.py.migrant){
+  dat.01.burden |>
+    filter(index == 'asir') |>
+    ggplot(aes(x = can, y = est, ymin = lci, ymax = uci, color = sex, shape = reg_label, group = sex)) +
+    geom_point(size = 3, position = position_dodge(.6)) +
+    scale_y_continuous(trans = 'log10', labels = function(.x) scales::comma(.x, scale = 100000)) +
+    scale_color_manual(values = c(female = '#dd1c77', male = '#3182bd')) +
+    scale_shape_manual(
+      'Burden in country\nof origin', 
+      values = c('general population' = 19, '0%-24%' = 6, '25%-49%' = 0, '50%-74%' = 5, '75-100%' = 2)) +
+    labs(x = 'Cancer type', y = 'ASIR per 100.000 person.year', color = 'Sex', shape = 'Population') + 
+    theme_minimal() +
+    theme(
+      legend.background = element_rect(fill = 'white', colour = 'lightgrey')
+    )
+}
+```
+
+### SIR vs PIR relationship
+
+**Note**
+This graph will only be displayed if the migrant population at risk (PY) is available in the data. 
+
+**Interpretation:**
+This graph displays the standardized incidence rate (SIR) on the x-axis and the proportional incidence ratio (PIR) on the y-axis. 
+Each point shape represents a specific cancer type. 
+The color of the point correspond to the sex of the
+individuals, with blue representing men and pink representing women.
+A extra line representing the best sex specific linear fit is added to the graph.
+
+```{r }
+if(has.py.migrant) {
+  dat.01.any |>
+    filter(index %in% c('sir', 'pir'), reg_label %in% c('migrant'), ref == 'registry', can != 'allC') |>
+    pivot_wider(names_from = 'index', values_from = c('est', 'lci', 'uci')) |>
+    ggplot(aes(x = est_sir, y = est_pir, color = sex, shape = can)) +
+    geom_point(size = 3) +
+    geom_smooth(aes(group = sex), method = 'lm', linetype = 'dashed', se = FALSE, size = .2) +
+    coord_cartesian(xlim = c(0, NA), ylim = c(0, NA)) +
+    scale_color_manual(values = c(female = '#dd1c77', male = '#3182bd')) +
+    labs(x = 'SIR', y = 'PIR', color = 'Sex', shape = 'Cancer type') + 
+    theme_minimal() +
+    theme(
+      legend.background = element_rect(fill = 'white', colour = 'lightgrey')
+    )
+}
+```
+
+### Proportional Incidence rate Ratio (PIR) for different cancer types stratified and sex combination
+
+**Interpretation:**
+This graph represents the Proportional Incidence rate Ratio (PIR), comparing individuals with a migration background to the host population. If the 95% confidence interval (CI) of the PIR includes 1, it indicates that the proportional risk is similar to that of the host population. If it is above 1, the proportional risk is higher than that of the host population.
+
+**Note:**
+Only cancer types / sex combination with sufficient cases (e.g. at least 5 by default) will be displayed in the graph.
+
+**Note:**
+Since they are ratio, the PIR are here displayed on a multiplicative scale (log2).
+
+```{r }
+dat.pir <-
+  dat.01.any |>
+  filter(
+    index == 'pir',
+    can != 'allC',
+    ref == 'registry'
+  ) |>
+  filter(
+    est > 0
+  )
+
+dat.pir |>
+  filter(!is.na(lci)) |> ## remove the cancer with less than 5 cases
+  arrange(desc(est)) |>
+  mutate(
+    label = paste0(can, ' - ', sex),
+    label = factor(label, levels = unique(label))
+  ) |>
+  ggplot(aes(x = label, y = est, ymin = lci, ymax = uci)) +
+  geom_pointrange() +
+  geom_hline(yintercept = 1, linetype = 2, color = 'black') +
+  scale_y_continuous(trans = 'log2') + 
+  labs(y = 'Proportional Incidence Ratio\n(Migrant vs Host population)', x = 'Cancer type - Sex combination') +
+  theme_light()
+```
+
+
+### Overall burden of cancer in the migrant population
+
+In the following graphs, you will see the total number of cancer cases across various categories. For the graphs showing 'all cancers,' we will provide explanations for interpreting each graph, along with key points to consider as you review the data.
+The graphs are organized as follows:
+
+  - The y-axis represents the cumulative number of cases for each respective cancer type.
+  - Each cancer type is displayed separately.
+  - The graphs are stratified by migration background, UN region, or UN subregion.
+
+**Interpretation:** 
+The y-axis represents the cumulative number of cancer cases among individuals with a migration background, stratified by UN region / UN subregion / country of birth. Blue represents males, while pink represents females.
+
+<!-- **Points to consider:**  -->
+<!-- Slightly more cancer cases are expected among females compared to males. However, the number of female cases should not exceed 1.5 times that of the male cases. If this occurs, please verify the original data for accuracy -->
+
+```{r }
+gg_fct_cancer_cases_barplot <-
+  function(dat, can.label = 'allC', exclude.general = TRUE, graph.title = '') {
+    gg.dat <-
+      dat |>
+      filter(
+        ageg == 'total',
+        can == can.label,
+        ref == 'registry',
+        index %in% c('n', 'py')
+      ) |>
+      select(reg_label, sex, can, index, est) |>
+      pivot_wider(names_from = 'index', values_from = 'est')
+    
+    if(exclude.general) gg.dat <- gg.dat |> filter(reg_label != 'general population')
+    
+    if(nrow(gg.dat)) {
+      reg.order <- 
+        gg.dat |>
+        group_by(reg_label) |>
+        summarise(n = sum(n, na.rm = TRUE), .groups = 'drop') |>
+        arrange(desc(n)) |>
+        pull(reg_label) |>
+        as.character()
+        
+      gg.dat |>
+        mutate(reg_label =  factor(reg_label, levels = reg.order)) |>
+        filter(as.numeric(reg_label) <= 40) |>
+        ggplot(aes(x = reg_label, y = n, fill = sex)) +
+        geom_bar(stat = 'identity', position = 'stack') +
+        scale_y_continuous(labels = function(.x) scales::comma(.x)) +
+        scale_fill_manual(values = c(female = '#dd1c77', male = '#3182bd')) + 
+        labs(x = NULL, y = 'Number of cancer cases', fill = 'Sex', title = graph.title) + 
+        theme_minimal() +
+        theme(
+          legend.background = element_rect(fill = 'white', colour = 'lightgrey'),
+          axis.text.x = element_text(angle = 90, hjust = 1, vjust = .5)
+        )
+    } else {
+      NULL
+    }
+    
+  }
+```
+
+#### All cancer
+
+```{r }
+## all cancer
+gg_fct_cancer_cases_barplot(dat = dat.01.any, can.label = 'allC', graph.title = 'All cancer')
+gg_fct_cancer_cases_barplot(dat = dat.01.unreg, can.label = 'allC', graph.title = 'All cancer')
+gg_fct_cancer_cases_barplot(dat = dat.01.unsubreg, can.label = 'allC', graph.title = 'All cancer')
+gg_fct_cancer_cases_barplot(dat = dat.01.iso3, can.label = 'allC', graph.title = 'All cancer')
+```
+
+#### Cervical cancer
+
+```{r }
+## cervical
+gg_fct_cancer_cases_barplot(dat = dat.01.any, can.label = 'cx', graph.title = 'Cervical cancer')
+gg_fct_cancer_cases_barplot(dat = dat.01.unreg, can.label = 'cx', graph.title = 'Cervical cancer')
+gg_fct_cancer_cases_barplot(dat = dat.01.unsubreg, can.label = 'cx', graph.title = 'Cervical cancer')
+gg_fct_cancer_cases_barplot(dat = dat.01.iso3, can.label = 'cx', graph.title = 'Cervical cancer')
+```
+
+#### Liver cancer
+
+<!-- **Points to consider:**  -->
+<!-- For liver cancer more cancer cases are expected among males compared to females. If this is not observed, please verify the original data for accuracy -->
+
+```{r }
+## liver
+gg_fct_cancer_cases_barplot(dat = dat.01.any, can.label = 'liv', graph.title = 'Liver cancer')
+gg_fct_cancer_cases_barplot(dat = dat.01.unreg, can.label = 'liv', graph.title = 'Liver cancer')
+gg_fct_cancer_cases_barplot(dat = dat.01.unsubreg, can.label = 'liv', graph.title = 'Liver cancer')
+gg_fct_cancer_cases_barplot(dat = dat.01.iso3, can.label = 'liv', graph.title = 'Liver cancer')
+```
+
+#### Stomach cancer
+
+<!-- **Points to consider:** -->
+<!-- For stomach cancer, a higher proportion of cases among males compared to females may be observed, although similar numbers of cases may also occur. If this pattern is not seen, please verify the original data for accuracy. -->
+
+```{r }
+## stomach
+gg_fct_cancer_cases_barplot(dat = dat.01.any, can.label = 'stm', graph.title = 'Stomach cancer')
+gg_fct_cancer_cases_barplot(dat = dat.01.unreg, can.label = 'stm', graph.title = 'Stomach cancer')
+gg_fct_cancer_cases_barplot(dat = dat.01.unsubreg, can.label = 'stm', graph.title = 'Stomach cancer')
+gg_fct_cancer_cases_barplot(dat = dat.01.iso3, can.label = 'stm', graph.title = 'Stomach cancer')
+```
+
+#### Breast cancer
+
+```{r }
+## breast
+gg_fct_cancer_cases_barplot(dat = dat.01.any, can.label = 'brea', graph.title = 'Breast cancer')
+gg_fct_cancer_cases_barplot(dat = dat.01.unreg, can.label = 'brea', graph.title = 'Breast cancer')
+gg_fct_cancer_cases_barplot(dat = dat.01.unsubreg, can.label = 'brea', graph.title = 'Breast cancer')
+gg_fct_cancer_cases_barplot(dat = dat.01.iso3, can.label = 'brea', graph.title = 'Breast cancer')
+```
+
+#### Colorectal cancer
+
+```{r }
+## colorectal
+gg_fct_cancer_cases_barplot(dat = dat.01.any, can.label = 'colo', graph.title = 'Colorectal cancer')
+gg_fct_cancer_cases_barplot(dat = dat.01.unreg, can.label = 'colo', graph.title = 'Colorectal cancer')
+gg_fct_cancer_cases_barplot(dat = dat.01.unsubreg, can.label = 'colo', graph.title = 'Colorectal cancer')
+gg_fct_cancer_cases_barplot(dat = dat.01.iso3, can.label = 'colo', graph.title = 'Colorectal cancer')
+```
+
+#### Lung cancer
+
+```{r }
+## lung
+gg_fct_cancer_cases_barplot(dat = dat.01.any, can.label = 'lun', graph.title = 'Lung cancer')
+gg_fct_cancer_cases_barplot(dat = dat.01.unreg, can.label = 'lun', graph.title = 'Lung cancer')
+gg_fct_cancer_cases_barplot(dat = dat.01.unsubreg, can.label = 'lun', graph.title = 'Lung cancer')
+gg_fct_cancer_cases_barplot(dat = dat.01.iso3, can.label = 'lun', graph.title = 'Lung cancer')
+```
+

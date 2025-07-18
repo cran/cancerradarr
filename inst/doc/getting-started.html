@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.6.42">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Cancer RADAR - Getting Started</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+width: 0.8em;
+margin: 0 0.8em 0.2em -1em;  vertical-align: middle;
+}
+.display.math{display: block; text-align: center; margin: 0.5rem auto;}
+
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+{ counter-reset: source-line 0; }
+pre.numberSource code > span
+{ position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+{ content: counter(source-line);
+position: relative; left: -1em; text-align: right; vertical-align: baseline;
+border: none; display: inline-block;
+-webkit-touch-callout: none; -webkit-user-select: none;
+-khtml-user-select: none; -moz-user-select: none;
+-ms-user-select: none; user-select: none;
+padding: 0 4px; width: 4em;
+color: #aaaaaa;
+}
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa; padding-left: 4px; }
+div.sourceCode
+{ }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } 
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.at { color: #7d9029; } 
+code span.bn { color: #40a070; } 
+code span.bu { color: #008000; } 
+code span.cf { color: #007020; font-weight: bold; } 
+code span.ch { color: #4070a0; } 
+code span.cn { color: #880000; } 
+code span.co { color: #60a0b0; font-style: italic; } 
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.do { color: #ba2121; font-style: italic; } 
+code span.dt { color: #902000; } 
+code span.dv { color: #40a070; } 
+code span.er { color: #ff0000; font-weight: bold; } 
+code span.ex { } 
+code span.fl { color: #40a070; } 
+code span.fu { color: #06287e; } 
+code span.im { color: #008000; font-weight: bold; } 
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.kw { color: #007020; font-weight: bold; } 
+code span.op { color: #666666; } 
+code span.ot { color: #007020; } 
+code span.pp { color: #bc7a00; } 
+code span.sc { color: #4070a0; } 
+code span.ss { color: #bb6688; } 
+code span.st { color: #4070a0; } 
+code span.va { color: #19177c; } 
+code span.vs { color: #4070a0; } 
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } 
+</style>
+
+
+
+
+<style type="text/css">body {background-color: #fff;margin: 1em auto;max-width: 700px;overflow: visible;padding-left: 2em;padding-right: 2em;font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;font-size: 14px;line-height: 1.35;}table {margin: 1em auto;border-width: 1px;border-color: #DDDDDD;border-style: outset;border-collapse: collapse;}table th {border-width: 2px;padding: 5px;border-style: inset;}table td {border-width: 1px;border-style: inset;line-height: 18px;padding: 5px 5px;}table, table th, table td {border-left-style: none;border-right-style: none;}table thead, table tr.even {background-color: #f7f7f7;}p {margin: 0.5em 0;}blockquote {background-color: #f6f6f6;padding: 0.25em 0.75em;}hr {border-style: solid;border: none;border-top: 1px solid #777;margin: 28px 0;}dl {margin-left: 0;}dl dd {margin-bottom: 13px;margin-left: 13px;}dl dt {font-weight: bold;}ul {margin-top: 0;}ul li {list-style: circle outside;}ul ul {margin-bottom: 0;}pre, code {background-color: #f7f7f7;border-radius: 3px;color: #333;white-space: pre-wrap; }pre {border-radius: 3px;margin: 5px 0px 10px 0px;padding: 10px;}pre:not([class]) {background-color: #f7f7f7;}code {font-family: Consolas, Monaco, 'Courier New', monospace;font-size: 85%;}p > code, li > code {padding: 2px 0px;}div.figure {text-align: center;}img {background-color: #FFFFFF;padding: 2px;border: 1px solid #DDDDDD;border-radius: 3px;border: 1px solid #CCCCCC;margin: 0 5px;}h1 {margin-top: 0;font-size: 35px;line-height: 40px;}h2 {border-bottom: 4px solid #f7f7f7;padding-top: 10px;padding-bottom: 2px;font-size: 145%;}h3 {border-bottom: 2px solid #f7f7f7;padding-top: 10px;font-size: 120%;}h4 {border-bottom: 1px solid #f7f7f7;margin-left: 8px;font-size: 105%;}h5, h6 {border-bottom: 1px solid #ccc;font-size: 105%;}a {color: #0033dd;text-decoration: none;}a:hover {color: #6666ff; }a:visited {color: #800080; }a:visited:hover {color: #BB00BB; }a[href^="http:"] {text-decoration: underline; }a[href^="https:"] {text-decoration: underline; }</style>
+</head>
+
+<body>
+
+
+<header id="title-block-header">
+<h1 class="title">Cancer RADAR - Getting Started</h1>
+
+</header>
+
+<nav id="TOC" role="doc-toc">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#before-starting" id="toc-before-starting">Before starting</a></li>
+  <li><a href="#installing-cancerradarr-package" id="toc-installing-cancerradarr-package">Installing <code>cancerradarr</code> Package</a></li>
+  <li><a href="#creating-the-cancer-radar-input-file" id="toc-creating-the-cancer-radar-input-file">Creating the Cancer RADAR Input File</a></li>
+  <li><a href="#entering-data-in-the-input-file" id="toc-entering-data-in-the-input-file">Entering Data in the Input File</a></li>
+  <li><a href="#computing-cancer-radar-summary-statistics" id="toc-computing-cancer-radar-summary-statistics">Computing Cancer RADAR Summary Statistics</a></li>
+  <li><a href="#visualizing-the-summary-statistics" id="toc-visualizing-the-summary-statistics">Visualizing the Summary Statistics</a></li>
+  <li><a href="#sending-cancer-radar-summary-statistics" id="toc-sending-cancer-radar-summary-statistics">Sending Cancer RADAR Summary Statistics</a></li>
+  </ul>
+</nav>
+<h2 id="before-starting">Before starting</h2>
+<p>This document provides a walkthrough of section <code>4.6 Step 3 Data processing</code> from the cancer RADAR protocol. For additional information, you can visit the <code>cancerradarr</code> package front page : <a href="https://cancerradar.gitlab.io/cancerradarr/" class="uri">https://cancerradar.gitlab.io/cancerradarr/</a></p>
+<h2 id="installing-cancerradarr-package">Installing <code>cancerradarr</code> Package</h2>
+<p>The <code>cancerradarr</code> package is hosted on <a href="https://about.gitlab.com/">gitlab.com</a>. You can install the package using the <code>install_gitlab</code> function from the <code>remotes</code> package.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Check if the remotes package is installed and install it if not.</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span>(<span class="sc">!</span>(<span class="st">&#39;remotes&#39;</span> <span class="sc">%in%</span> <span class="fu">rownames</span>(<span class="fu">installed.packages</span>()))) <span class="fu">install.packages</span>(<span class="st">&#39;remotes&#39;</span>, <span class="at">dependencies =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Install the cancerradarr package</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>remotes<span class="sc">::</span><span class="fu">install_gitlab</span>(<span class="st">&quot;cancerradar/cancerradarr&quot;</span>, <span class="at">dependencies =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
+</div>
+<h2 id="creating-the-cancer-radar-input-file">Creating the Cancer RADAR Input File</h2>
+<p>The first step is to create a standardized input file that cancer registries can complete.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Load the cancerradarr package</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(cancerradarr)</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Create the working directory</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Please add here the working directory from which you want to work</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Note that the Microsoft environment uses the backslash (\) as a path </span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="co"># separator. For R to interpret the path correctly, forward slashes (/) </span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="co"># need to be replaced with backslashes (\).</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="co"># The use of normalizePath should insure this path is correctly written</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>workdir <span class="ot">&lt;-</span> <span class="fu">normalizePath</span>(<span class="st">&#39;~/Documents/241107_cancerRADAR_getting_started&#39;</span>)</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a><span class="fu">dir.create</span>(workdir, <span class="at">showWarnings =</span> <span class="cn">FALSE</span>, <span class="at">recursive =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Create the Cancer RADAR input file</span></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a><span class="fu">create_registry_input_file</span>(<span class="fu">file.path</span>(workdir, <span class="st">&#39;cancerRADAR_input.xlsx&#39;</span>))</span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>openxlsx<span class="sc">::</span><span class="fu">openXL</span>(<span class="fu">file.path</span>(workdir, <span class="st">&#39;cancerRADAR_input.xlsx&#39;</span>))</span></code></pre></div>
+</div>
+<p>The file <code>cancerRADAR_input.xlsx</code> has been created and can be filled by cancer registries.</p>
+<p>Let’s have a quick look at this file:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Open the input file in Excel</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>openxlsx<span class="sc">::</span><span class="fu">openXL</span>(<span class="fu">file.path</span>(workdir, <span class="st">&#39;cancerRADAR_input.xlsx&#39;</span>))</span></code></pre></div>
+</div>
+<p>The <code>README</code> sheet provides a synthetic version of the spreadsheet content and some brief guidance on how to complete the data. More detailed information can be found in the Cancer RADAR protocol.</p>
+<p><strong>Note:</strong> the input data excel spreadsheet could also be downloaded <a href="https://gitlab.com/cancerradar/cancerradarr/-/blob/main/inst/extdata/ex_cancerRADAR_input.xlsx?ref_type=heads" title="https://gitlab.com/cancerradar/cancerradarr/-/blob/main/inst/extdata/ex_cancerRADAR_input.xlsx?ref_type=heads">here</a>.</p>
+<h2 id="entering-data-in-the-input-file">Entering Data in the Input File</h2>
+<ol type="1">
+<li>Open the empty input file and enter the data in the different sheets (for now, only incidence data is requested).</li>
+<li>You will see different empty sheets. The first sheet provides an explanation of the data that needs to be entered. In the second sheet you can indicate for which country and time period the data is entered.</li>
+<li>Save the file under a different name, providing the period and version date (e.g., <code>cancerRADAR_input_completed_xx_xx_vsxxxx2024.xlsx</code>).</li>
+</ol>
+<p>For a given period of time, for each cancer type, sex, and 5-year age group, cancer registries can collect the number of cancer cases stratified by country of birth and fill it in the created input file. If available, the population at risk (as person-years) can also be completed in the same input file.</p>
+<p>For the purpose of this exercise, we will use an input file with dummy data that comes with the <code>cancerradarr</code> package.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Get an example of a filled input file</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="fu">file.copy</span>(</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">file.path</span>(<span class="fu">path.package</span>(<span class="st">&#39;cancerradarr&#39;</span>), <span class="st">&#39;extdata/ex_cancerRADAR_input_filled.xlsx&#39;</span>),</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">file.path</span>(workdir, <span class="st">&#39;ex_cancerRADAR_input_filled.xlsx&#39;</span>),</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">overwrite =</span> <span class="cn">TRUE</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Open the example filled input file in Excel</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>openxlsx<span class="sc">::</span><span class="fu">openXL</span>(<span class="fu">file.path</span>(workdir, <span class="st">&#39;ex_cancerRADAR_input_filled.xlsx&#39;</span>))</span></code></pre></div>
+</div>
+<h2 id="computing-cancer-radar-summary-statistics">Computing Cancer RADAR Summary Statistics</h2>
+<p>The <code>create_canradar_summary_file</code> function will produce a ready-to-share Excel spreadsheet with all the relevant summary statistics.</p>
+<p>Here is an example with the example input file we just obtained. The <code>filename.in</code> should be adapted to point to the input file filled with your local cancer registry data when completed. If you do not want to share the data by country of birth, you can set the argument <code>include.by.cob.stat = FALSE</code>.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Compute summary statistics including country of birth aggregation</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="fu">create_canradar_summary_file</span>(</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">filename.in =</span> <span class="fu">file.path</span>(workdir, <span class="st">&#39;ex_cancerRADAR_input_filled.xlsx&#39;</span>),</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">filename.out =</span> <span class="fu">file.path</span>(workdir, <span class="st">&#39;ex_cancerRADAR_output_with_cob_01.xlsx&#39;</span>),</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">ncan.min =</span> <span class="dv">5</span>,</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">include.by.cob.stat =</span> <span class="cn">TRUE</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Or without country of birth aggregation</span></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a><span class="fu">create_canradar_summary_file</span>(</span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">filename.in =</span> <span class="fu">file.path</span>(workdir, <span class="st">&#39;ex_cancerRADAR_input_filled.xlsx&#39;</span>),</span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">filename.out =</span> <span class="fu">file.path</span>(workdir, <span class="st">&#39;ex_cancerRADAR_output_without_cob_01.xlsx&#39;</span>),</span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>  <span class="at">ncan.min =</span> <span class="dv">5</span>,</span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>  <span class="at">include.by.cob.stat =</span> <span class="cn">FALSE</span></span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
+</div>
+<p>This function might take a few minutes to complete.</p>
+<p>During the processing, it ensures that no cells with less than 5 cancer cases are generated. In this way the output file will be in a ready-to-share format.</p>
+<p>You should now have an output file (Excel spreadsheet) containing all the Cancer RADAR summary statistics as an output. The <code>README</code> tab of the spreadsheet contains the data dictionary of the output file.</p>
+<p>A separate data dictionary is also available and can be opened with the following command:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>cancerradarr<span class="sc">::</span><span class="fu">open_canradar_dictionary</span>()</span></code></pre></div>
+</div>
+<h2 id="visualizing-the-summary-statistics">Visualizing the Summary Statistics</h2>
+<p>To help cancer registries perform data quality checks and gain an initial overview of the cancer registry data, an automatic report can be generated using the <code>create_static_report</code> function.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Create a report of the entered data</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="fu">create_static_report</span>(<span class="fu">file.path</span>(workdir, <span class="st">&#39;ex_cancerRADAR_output_with_cob_01.xlsx&#39;</span>))</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="co"># The report can be opened with the following command or by double-clicking on the filename</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="fu">browseURL</span>(<span class="fu">file.path</span>(workdir, <span class="st">&#39;ex_cancerRADAR_output_with_cob_01.html&#39;</span>))</span></code></pre></div>
+</div>
+<p>For those who want to explore the data further, a dynamic report is also available via the <code>run_dynamic_report</code> function.</p>
+<p><strong>Note:</strong> Since this will open a Shiny app on your computer, the R console will stay busy until close the window or click the <code>stop</code> button in the R console.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Create a dynamic report of the entered data</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="fu">run_dynamic_report</span>(<span class="fu">file.path</span>(workdir, <span class="st">&#39;ex_cancerRADAR_output_with_cob_01.xlsx&#39;</span>))</span></code></pre></div>
+</div>
+<h2 id="sending-cancer-radar-summary-statistics">Sending Cancer RADAR Summary Statistics</h2>
+<p>When you have completed all steps with your local cancer registry data, please send the created file through the RedCap link created for this project. You can email to cancer.radar@iarc.who.int to receive a personal link.</p>
+
+
+
+
+
+</body></html>

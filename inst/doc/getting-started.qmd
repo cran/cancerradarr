@@ -1,0 +1,154 @@
+---
+title: "Cancer RADAR - Getting Started"
+format: 
+  html:
+    toc: true
+editor: visual
+vignette: >
+  %\VignetteIndexEntry{getting-started}
+  %\VignetteEngine{quarto::html}
+  %\VignetteEncoding{UTF-8}
+---
+
+## Before starting
+
+This document provides a walkthrough of section `4.6 Step 3 Data processing` from the cancer RADAR protocol. For additional information, you can visit the `cancerradarr` package front page : <https://cancerradar.gitlab.io/cancerradarr/>
+
+## Installing `cancerradarr` Package
+
+The `cancerradarr` package is hosted on [gitlab.com](https://about.gitlab.com/). You can install the package using the `install_gitlab` function from the `remotes` package.
+
+```{r}
+#| eval: false
+# Check if the remotes package is installed and install it if not.
+if(!('remotes' %in% rownames(installed.packages()))) install.packages('remotes', dependencies = TRUE)
+
+# Install the cancerradarr package
+remotes::install_gitlab("cancerradar/cancerradarr", dependencies = TRUE)
+```
+
+## Creating the Cancer RADAR Input File
+
+The first step is to create a standardized input file that cancer registries can complete.
+
+```{r}
+#| eval: false
+# Load the cancerradarr package
+library(cancerradarr)
+
+# Create the working directory
+# Please add here the working directory from which you want to work
+# Note that the Microsoft environment uses the backslash (\) as a path 
+# separator. For R to interpret the path correctly, forward slashes (/) 
+# need to be replaced with backslashes (\).
+# The use of normalizePath should insure this path is correctly written
+workdir <- normalizePath('~/Documents/241107_cancerRADAR_getting_started')
+
+dir.create(workdir, showWarnings = FALSE, recursive = TRUE)
+
+# Create the Cancer RADAR input file
+create_registry_input_file(file.path(workdir, 'cancerRADAR_input.xlsx'))
+openxlsx::openXL(file.path(workdir, 'cancerRADAR_input.xlsx'))
+```
+
+The file `cancerRADAR_input.xlsx` has been created and can be filled by cancer registries.
+
+Let's have a quick look at this file:
+
+```{r}
+#| eval: false
+# Open the input file in Excel
+openxlsx::openXL(file.path(workdir, 'cancerRADAR_input.xlsx'))
+```
+
+The `README` sheet provides a synthetic version of the spreadsheet content and some brief guidance on how to complete the data. More detailed information can be found in the Cancer RADAR protocol.
+
+**Note:** the input data excel spreadsheet could also be downloaded [here](https://gitlab.com/cancerradar/cancerradarr/-/blob/main/inst/extdata/ex_cancerRADAR_input.xlsx?ref_type=heads "https://gitlab.com/cancerradar/cancerradarr/-/blob/main/inst/extdata/ex_cancerRADAR_input.xlsx?ref_type=heads").
+
+## Entering Data in the Input File
+
+1.  Open the empty input file and enter the data in the different sheets (for now, only incidence data is requested).
+2.  You will see different empty sheets. The first sheet provides an explanation of the data that needs to be entered. In the second sheet you can indicate for which country and time period the data is entered.
+3.  Save the file under a different name, providing the period and version date (e.g., `cancerRADAR_input_completed_xx_xx_vsxxxx2024.xlsx`).
+
+For a given period of time, for each cancer type, sex, and 5-year age group, cancer registries can collect the number of cancer cases stratified by country of birth and fill it in the created input file. If available, the population at risk (as person-years) can also be completed in the same input file.
+
+For the purpose of this exercise, we will use an input file with dummy data that comes with the `cancerradarr` package.
+
+```{r}
+#| eval: false
+# Get an example of a filled input file
+file.copy(
+  file.path(path.package('cancerradarr'), 'extdata/ex_cancerRADAR_input_filled.xlsx'),
+  file.path(workdir, 'ex_cancerRADAR_input_filled.xlsx'),
+  overwrite = TRUE
+)
+
+# Open the example filled input file in Excel
+openxlsx::openXL(file.path(workdir, 'ex_cancerRADAR_input_filled.xlsx'))
+```
+
+## Computing Cancer RADAR Summary Statistics
+
+The `create_canradar_summary_file` function will produce a ready-to-share Excel spreadsheet with all the relevant summary statistics.
+
+Here is an example with the example input file we just obtained. The `filename.in` should be adapted to point to the input file filled with your local cancer registry data when completed. If you do not want to share the data by country of birth, you can set the argument `include.by.cob.stat = FALSE`.
+
+```{r}
+#| eval: false
+# Compute summary statistics including country of birth aggregation
+create_canradar_summary_file(
+  filename.in = file.path(workdir, 'ex_cancerRADAR_input_filled.xlsx'),
+  filename.out = file.path(workdir, 'ex_cancerRADAR_output_with_cob_01.xlsx'),
+  ncan.min = 5,
+  include.by.cob.stat = TRUE
+)
+
+# Or without country of birth aggregation
+create_canradar_summary_file(
+  filename.in = file.path(workdir, 'ex_cancerRADAR_input_filled.xlsx'),
+  filename.out = file.path(workdir, 'ex_cancerRADAR_output_without_cob_01.xlsx'),
+  ncan.min = 5,
+  include.by.cob.stat = FALSE
+)
+```
+
+This function might take a few minutes to complete.
+
+During the processing, it ensures that no cells with less than 5 cancer cases are generated. In this way the output file will be in a ready-to-share format.
+
+You should now have an output file (Excel spreadsheet) containing all the Cancer RADAR summary statistics as an output. The `README` tab of the spreadsheet contains the data dictionary of the output file.
+
+A separate data dictionary is also available and can be opened with the following command:
+
+```{r}
+#| eval: false
+cancerradarr::open_canradar_dictionary()
+```
+
+## Visualizing the Summary Statistics
+
+To help cancer registries perform data quality checks and gain an initial overview of the cancer registry data, an automatic report can be generated using the `create_static_report` function.
+
+```{r}
+#| eval: false
+# Create a report of the entered data
+create_static_report(file.path(workdir, 'ex_cancerRADAR_output_with_cob_01.xlsx'))
+
+# The report can be opened with the following command or by double-clicking on the filename
+browseURL(file.path(workdir, 'ex_cancerRADAR_output_with_cob_01.html'))
+```
+
+For those who want to explore the data further, a dynamic report is also available via the `run_dynamic_report` function.
+
+**Note:** Since this will open a Shiny app on your computer, the R console will stay busy until close the window or click the `stop` button in the R console.
+
+```{r}
+#| eval: false
+# Create a dynamic report of the entered data
+run_dynamic_report(file.path(workdir, 'ex_cancerRADAR_output_with_cob_01.xlsx'))
+```
+
+## Sending Cancer RADAR Summary Statistics
+
+When you have completed all steps with your local cancer registry data, please send the created file through the RedCap link created for this project. You can email to cancer.radar\@iarc.who.int to receive a personal link.
