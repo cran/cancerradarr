@@ -28,47 +28,97 @@
 #'
 #'
 read_cancerradar_output_01 <-
-  function(filename.out, aggr.level = 'cob_iso3'){
+  function(filename.out, aggr.level = 'cob_iso3') {
     wb <- openxlsx::loadWorkbook(filename.out)
     sheets.list <- openxlsx::sheets(wb)
 
-    if(any(stringr::str_detect(sheets.list, paste0(aggr.level, '$')))){
-
+    if (any(stringr::str_detect(sheets.list, paste0(aggr.level, '$')))) {
       dat.migr.count <-
-        openxlsx::read.xlsx(wb, paste0('count_migr_', aggr.level), na.strings = c('NA', paste0('< ', 1:50))) %>%
-        as_tibble() %>%
-        rename('n' = 'n_tot') %>%
-        rename_with(~ 'reg_label', any_of(aggr.level)) %>%
-        mutate(py = as.numeric(.data$py), n = as.numeric(.data$n)) %>%
+        openxlsx::read.xlsx(
+          wb,
+          paste0('count_migr_', aggr.level),
+          na.strings = c('NA', paste0('< ', 1:50))
+        ) |>
+        as_tibble() |>
+        rename('n' = 'n_tot') |>
+        rename_with(~'reg_label', any_of(aggr.level)) |>
+        mutate(py = as.numeric(.data$py), n = as.numeric(.data$n)) |>
         filter(!is.na(.data$reg_label))
 
       dat.migr.other <-
-        openxlsx::read.xlsx(wb, paste0('other_migr_', aggr.level), na.strings = c('NA', paste0('< ', 1:50))) %>%
-        as_tibble() %>%
-        rename_with(~ 'reg_label', any_of(aggr.level)) %>%
-        filter(!is.na(.data$reg_label))
+        openxlsx::read.xlsx(
+          wb,
+          paste0('other_migr_', aggr.level),
+          na.strings = c('NA', paste0('< ', 1:50))
+        ) |>
+        as_tibble() |>
+        rename_with(~'reg_label', any_of(aggr.level)) |>
+        filter(!is.na(.data$reg_label)) |>
+        mutate(across(
+          c(
+            starts_with('cir'),
+            starts_with('asir'),
+            starts_with('sir'),
+            starts_with('pir')
+          ),
+          ~ as.numeric(.x)
+        )) |>
+        mutate(across(
+          c(any_of(c('reg_label', 'sex', 'ageg', 'can'))),
+          ~ as.character(.x)
+        ))
 
       dat.ref.count <-
-        openxlsx::read.xlsx(wb, paste0('count_gen'), na.strings = c('NA', paste0('< ', 1:50))) %>%
-        as_tibble() %>%
-        rename('n' = 'n_tot') %>%
-        rename_with(~ 'reg_label', any_of('population')) %>%
-        mutate(py = as.numeric(.data$py), n = as.numeric(.data$n)) %>%
+        openxlsx::read.xlsx(
+          wb,
+          paste0('count_gen'),
+          na.strings = c('NA', paste0('< ', 1:50))
+        ) |>
+        as_tibble() |>
+        rename('n' = 'n_tot') |>
+        rename_with(~'reg_label', any_of('population')) |>
+        mutate(py = as.numeric(.data$py), n = as.numeric(.data$n)) |>
         filter(!is.na(.data$reg_label))
 
       dat.ref.other <-
-        openxlsx::read.xlsx(wb, paste0('other_gen'), na.strings = c('NA', paste0('< ', 1:50))) %>%
-        as_tibble() %>%
-        rename_with(~ 'reg_label', any_of('population')) %>%
-        filter(!is.na(.data$reg_label))
+        openxlsx::read.xlsx(
+          wb,
+          paste0('other_gen'),
+          na.strings = c('NA', paste0('< ', 1:50))
+        ) |>
+        as_tibble() |>
+        rename_with(~'reg_label', any_of('population')) |>
+        filter(!is.na(.data$reg_label)) |>
+        mutate(across(
+          c(starts_with('cir'), starts_with('asir')),
+          ~ as.numeric(.x)
+        )) |>
+        mutate(across(
+          c(any_of(c('reg_label', 'sex', 'ageg', 'can'))),
+          ~ as.character(.x)
+        ))
 
       dat.01 <-
         bind_rows(
-          left_join(dat.migr.count, dat.migr.other, by = c('reg_label', 'sex', 'ageg', 'can')),
-          left_join(dat.ref.count, dat.ref.other, by = c('reg_label', 'sex', 'ageg', 'can'))
-        ) %>%
+          left_join(
+            dat.migr.count,
+            dat.migr.other,
+            by = c('reg_label', 'sex', 'ageg', 'can')
+          ),
+          left_join(
+            dat.ref.count,
+            dat.ref.other,
+            by = c('reg_label', 'sex', 'ageg', 'can')
+          )
+        ) |>
         mutate(
-          reg_label = factor(.data$reg_label, levels = c('general population', gtools::mixedsort(unique(dat.migr.count$reg_label))))
+          reg_label = factor(
+            .data$reg_label,
+            levels = c(
+              'general population',
+              gtools::mixedsort(unique(dat.migr.count$reg_label))
+            )
+          )
         ) |>
         filter(!is.na(.data$reg_label))
 
@@ -78,36 +128,63 @@ read_cancerradar_output_01 <-
       index.names.rel.glonat <- paste0(index.names.rel.reg, '_glonat')
       index.names.rel.gloeu27 <- paste0(index.names.rel.reg, '_gloeu27')
       index.names.rel.gloeuUN <- paste0(index.names.rel.reg, '_gloeuUN')
-      index.names <- c(index.name.abs, index.names.rel.reg, index.names.rel.glonat, index.names.rel.gloeu27, index.names.rel.gloeuUN)
+      index.names <- c(
+        index.name.abs,
+        index.names.rel.reg,
+        index.names.rel.glonat,
+        index.names.rel.gloeu27,
+        index.names.rel.gloeuUN
+      )
 
       dat.est <-
-        dat.01 %>%
-        select(any_of(c(common.vars, index.names))) %>%
-        pivot_longer(!any_of(common.vars), names_to = 'index', values_to = 'est')
+        dat.01 |>
+        select(any_of(c(common.vars, index.names))) |>
+        pivot_longer(
+          !any_of(common.vars),
+          names_to = 'index',
+          values_to = 'est'
+        )
 
       dat.lci <-
-        dat.01 %>%
-        select(any_of(c(common.vars, paste0(index.names, '_lci')))) %>%
-        pivot_longer(!any_of(common.vars), names_to = 'index', values_to = 'lci') %>%
-        mutate(index  = stringr::str_remove(.data$index, '_lci$'))
+        dat.01 |>
+        select(any_of(c(common.vars, paste0(index.names, '_lci')))) |>
+        pivot_longer(
+          !any_of(common.vars),
+          names_to = 'index',
+          values_to = 'lci'
+        ) |>
+        mutate(index = stringr::str_remove(.data$index, '_lci$'))
 
       dat.uci <-
-        dat.01 %>%
-        select(any_of(c(common.vars, paste0(index.names, '_uci')))) %>%
-        pivot_longer(!any_of(common.vars), names_to = 'index', values_to = 'uci') %>%
-        mutate(index  = stringr::str_remove(.data$index, '_uci$'))
+        dat.01 |>
+        select(any_of(c(common.vars, paste0(index.names, '_uci')))) |>
+        pivot_longer(
+          !any_of(common.vars),
+          names_to = 'index',
+          values_to = 'uci'
+        ) |>
+        mutate(index = stringr::str_remove(.data$index, '_uci$'))
 
       dat <-
-        dat.est %>%
+        dat.est |>
         left_join(dat.lci, by = c(common.vars, 'index')) |>
         left_join(dat.uci, by = c(common.vars, 'index')) |>
         mutate(
-          ref =
-            rep('registry', n()) |>
-            replace(stringr::str_detect(.data$index, '_glonat'), 'globocan national') |>
-            replace(stringr::str_detect(.data$index, '_gloeu27'), 'globocan eu27') |>
-            replace(stringr::str_detect(.data$index, '_gloeuUN'), 'globocan euUN'),
-          index = .data$index |> stringr::str_remove('_glonat|_gloeu27|_gloeuUN'),
+          ref = rep('registry', n()) |>
+            replace(
+              stringr::str_detect(.data$index, '_glonat'),
+              'globocan national'
+            ) |>
+            replace(
+              stringr::str_detect(.data$index, '_gloeu27'),
+              'globocan eu27'
+            ) |>
+            replace(
+              stringr::str_detect(.data$index, '_gloeuUN'),
+              'globocan euUN'
+            ),
+          index = .data$index |>
+            stringr::str_remove('_glonat|_gloeu27|_gloeuUN'),
           .after = 'can'
         )
     } else {

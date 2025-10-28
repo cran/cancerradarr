@@ -1,4 +1,4 @@
-#' Generate all the possible combinations of slices in a chopped vector 
+#' Generate all the possible combinations of slices in a chopped vector
 #'
 #' @param vect.size int, the size of the vector
 #'
@@ -7,7 +7,7 @@
 #'
 #' @examples
 #' chop_vector(3)
-#' 
+#'
 chop_vector <-
   function(vect.size = 3) {
     formal.comb.list <- list()
@@ -16,7 +16,7 @@ chop_vector <-
       for (i in 2:vect.size) {
         new.comb <- dplyr::tibble(x = 1:i)
         names(new.comb) <- paste0('Var', i)
-        all.comb <- tidyr::expand_grid(cur.valid.comb, new.comb) |>  as.matrix()
+        all.comb <- tidyr::expand_grid(cur.valid.comb, new.comb) |> as.matrix()
         cur.valid.comb.id <- apply(all.comb, 1, function(.x) {
           .x.diff <- diff(.x)
           all(.x.diff <= 1 & .x.diff >= 0)

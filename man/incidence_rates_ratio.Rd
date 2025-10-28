@@ -4,7 +4,7 @@
 \alias{incidence_rates_ratio}
 \title{Compute incidence rates ratio}
 \usage{
-incidence_rates_ratio(ncan, py, ncanref, pyref, ncan.min = 5)
+incidence_rates_ratio(ncan, py, ncanref, pyref, ncan.min = 5, py.min = 0)
 }
 \arguments{
 \item{ncan}{integer, number of cancers in the population of interest}
@@ -15,7 +15,9 @@ incidence_rates_ratio(ncan, py, ncanref, pyref, ncan.min = 5)
 
 \item{pyref}{integer, person-year of the the reference population}
 
-\item{ncan.min}{integer, minimum number of observation required not to mask the CI's out
+\item{ncan.min}{integer, minimum number of observation required not to mask the CI's out}
+
+\item{py.min}{integer, minimum person-year required not to mask the CI's out
 
 Incidence rates ratio and associated 95\% confidence interval are computing assuming normal distribution of the ratios on the log scale.}
 }

@@ -4,7 +4,10 @@
 # if(!('remotes' %in% rownames(installed.packages()))) install.packages('remotes', dependencies = TRUE)
 # 
 # # Install the cancerradarr package
+# # - from GitLab (latest devel version) - recommended
 # remotes::install_gitlab("cancerradar/cancerradarr", dependencies = TRUE)
+# # - or from CRAN (latest stable version)
+# # install.packages("cancerradarr", dependencies = TRUE)
 
 
 ## -----------------------------------------------------------------------------
@@ -53,6 +56,7 @@
 #   filename.in = file.path(workdir, 'ex_cancerRADAR_input_filled.xlsx'),
 #   filename.out = file.path(workdir, 'ex_cancerRADAR_output_with_cob_01.xlsx'),
 #   ncan.min = 5,
+#   py.min = 100,
 #   include.by.cob.stat = TRUE
 # )
 # 
@@ -61,6 +65,7 @@
 #   filename.in = file.path(workdir, 'ex_cancerRADAR_input_filled.xlsx'),
 #   filename.out = file.path(workdir, 'ex_cancerRADAR_output_without_cob_01.xlsx'),
 #   ncan.min = 5,
+#   py.min = 100,
 #   include.by.cob.stat = FALSE
 # )
 

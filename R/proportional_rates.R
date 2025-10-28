@@ -21,15 +21,19 @@
 #' ntot <- c(10, 100, 1000)
 #' proportional_rates(ncan, ntot, 5)
 proportional_rates <-
-  function(ncan, ntot, ncan.min = 5){
+  function(ncan, ntot, ncan.min = 5) {
     conf.level <- 0.95
     xnc <- cbind(ncan, ntot, conf.level)
     est <- lci <- uci <- rep(NA, nrow(xnc))
 
     for (i in 1:nrow(xnc)) {
-      if((!is.na(xnc[i, 1])) & (!is.na(xnc[i, 2]))){
-        if((xnc[i, 2] > 0) & (xnc[i, 1] <= xnc[i, 2])) {
-          ci <- stats::binom.test(x = xnc[i, 1], n = xnc[i, 2], conf.level = xnc[i, 3])$conf.int
+      if ((!is.na(xnc[i, 1])) & (!is.na(xnc[i, 2]))) {
+        if ((xnc[i, 2] > 0) & (xnc[i, 1] <= xnc[i, 2])) {
+          ci <- stats::binom.test(
+            x = xnc[i, 1],
+            n = xnc[i, 2],
+            conf.level = xnc[i, 3]
+          )$conf.int
           est[i] <- xnc[i, 1] / xnc[i, 2]
           lci[i] <- ci[1]
           uci[i] <- ci[2]
@@ -37,7 +41,7 @@ proportional_rates <-
       }
     }
 
-    tibble(est = est, lci = lci, uci = uci) %>%
+    tibble(est = est, lci = lci, uci = uci) |>
       mutate(
         lci = replace(.data$lci, ncan < ncan.min, NA),
         uci = replace(.data$uci, ncan < ncan.min, NA)

@@ -1,5 +1,13 @@
 # cancerradarr - Cancer RADAR project R package.
 
+ <!-- badges: start -->
+  [![CRAN status](https://img.shields.io/cran/v/cancerradarr)](https://CRAN.R-project.org/package=cancerradarr)
+  
+  [![Lifecycle: stable](https://img.shields.io/badge/lifecycle-stable-brightgreen.svg)](https://lifecycle.r-lib.org/articles/stages.html#stable)
+  
+  [![coverage report](https://gitlab.com/cancerradar/cancerradarr/badges/main/coverage.svg)](https://cancerradar.gitlab.io/cancerradarr/coverage/)
+  <!-- badges: end -->
+
 ## Cancer RADAR project
 
 **Short summary:**
@@ -44,6 +52,8 @@ Depending on the availability of the data at the cancer registry the excel file 
 7. All cancers excl. non-melanoma skin cancer (C00-97/C44)
 
 **Depenidng on the availability, three input files may be requested for the following three time periods:**
+
+- CI5-XII 2018-2022
 -	CI5-XII 2013-2017
 -	CI5-XI 2008-2012
 -	CI5-X 2003-2007
@@ -51,16 +61,24 @@ Depending on the availability of the data at the cancer registry the excel file 
 
 ### How to install the package
 
-The package is hosted on gitlab.com and can be installed in R using the following commands:
+The package is hosted on `gitlab.com` ([dev version](https://gitlab.com/cancerradar/cancerradarr)) and `CRAN` ([stable version](https://CRAN.R-project.org/package=cancerradarr)) and can be installed in R using one of the following option:
 
-```r
-## check if remotes package is installed and install remotes if not.
-if(!('remotes' %in% rownames(installed.packages()))) install.packages('remotes', dep = TRUE)
+- Install the latest dev version from `GitLab`
 
-## install cancerradarr package
-remotes::install_gitlab("cancerradar/cancerradarr", dependencies = TRUE)
-```
+  ```r
+  ## check if remotes package is installed and install remotes if not.
+  if(!('remotes' %in% rownames(installed.packages()))) install.packages('remotes', dep = TRUE)
+  
+  ## install the latest dev version of cancerradarr package
+  remotes::install_gitlab("cancerradar/cancerradarr", dependencies = TRUE)
+  ```
 
+- Install the latest stable version from `CRAN`
+
+  ```r
+  ## install the latest stable version of cancerradarr package
+  install.packages("cancerradarr", dependencies = TRUE)
+  ```
 
 ### Download empty excel file (input file) to enter the data
 

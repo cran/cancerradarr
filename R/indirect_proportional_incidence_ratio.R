@@ -26,16 +26,17 @@
 #' indirect_proportional_incidence_ratio(ncan, ntot, ncanref, ntotref, ncan.min)
 #' indirect_proportional_incidence_ratio(ncan, ntot, ncanref, ntotref, sum(ncan) + 1)
 indirect_proportional_incidence_ratio <-
-  function(ncan, ntot, ncanref, ntotref, ncan.min = 5){
+  function(ncan, ntot, ncanref, ntotref, ncan.min = 5) {
     est <- lci <- uci <- NA
     n.obs <- sum(ncan, na.rm = TRUE)
     n.exp <- sum(ntot * ncanref / ntotref, na.rm = TRUE)
-    if(n.exp > 0){
+    if (n.exp > 0) {
       est <- n.obs / n.exp
-      if((n.obs >= ncan.min) & all(ntot >= ncan)){
+      if ((n.obs >= ncan.min) & all(ntot >= ncan)) {
         conf.level <- .95
         norm.pp <- stats::qnorm(1 - (1 - conf.level) / 2)
-        se.log.est <- sqrt(sum(ncan * (ntot - ncan) / ntot, na.rm = TRUE)) / n.obs
+        se.log.est <- sqrt(sum(ncan * (ntot - ncan) / ntot, na.rm = TRUE)) /
+          n.obs
         lci <- exp(log(est) - norm.pp * se.log.est)
         uci <- exp(log(est) + norm.pp * se.log.est)
       }

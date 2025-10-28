@@ -3,6 +3,7 @@
 #' @param ncan integer, number of cancer
 #' @param py integer, number of person-year
 #' @param ncan.min integer, minimum number of observation required not to mask the CI's out
+#' @param py.min integer, minimum number of person-year required not to mask the CI's out
 #'
 #' Crude incidence rates and associated 95% confidence interval are computing assuming a Poisson distribution and the exact method.
 #'
@@ -17,19 +18,18 @@
 #' @examples
 #' ncan <- c(1, 10, 100)
 #' py <- c(10, 100, 1000)
-#' incidence_rates(ncan, py, 5)
+#' incidence_rates(ncan, py, 5, 500)
 incidence_rates <-
-  function(ncan, py, ncan.min = 5){
-    if(length(ncan)){
-      epitools::pois.exact(ncan, py) %>%
-        as_tibble() %>%
-        select('est' = 'rate', 'lci' = 'lower', 'uci' = 'upper') %>%
+  function(ncan, py, ncan.min = 5, py.min = 0) {
+    if (length(ncan)) {
+      epitools::pois.exact(ncan, py) |>
+        as_tibble() |>
+        select('est' = 'rate', 'lci' = 'lower', 'uci' = 'upper') |>
         mutate(
-          lci = replace(.data$lci, ncan < ncan.min, NA),
-          uci = replace(.data$uci, ncan < ncan.min, NA)
+          lci = replace(.data$lci, ncan < ncan.min | py < py.min, NA),
+          uci = replace(.data$uci, ncan < ncan.min | py < py.min, NA)
         )
     } else {
       tibble(est = numeric(), lci = numeric(), uci = numeric(), .rows = 0)
     }
   }
-

@@ -5,6 +5,7 @@
 #' @param ncanref integer, number of cancers in the reference population
 #' @param pyref integer, person-year of the the reference population
 #' @param ncan.min integer, minimum number of observation required not to mask the CI's out
+#' @param py.min integer, minimum person-year required not to mask the CI's out
 #'
 #' Incidence rates ratio and associated 95% confidence interval are computing assuming normal distribution of the ratios on the log scale.
 #'
@@ -24,20 +25,21 @@
 #'
 #' incidence_rates_ratio(ncan, py, ncanref, pyref, ncan.min)
 incidence_rates_ratio <-
-  function(ncan, py, ncanref, pyref, ncan.min = 5){
+  function(ncan, py, ncanref, pyref, ncan.min = 5, py.min = 0) {
     est <- lci <- uci <- NA
-    if(sum(ncan, na.rm = TRUE) >= ncan.min){
+    if (sum(ncan, na.rm = TRUE) >= ncan.min) {
+      ## TODO check if this test is needed?
       conf.level <- .95
       norm.pp <- stats::qnorm(1 - (1 - conf.level) / 2)
 
       est <- (ncan / py) / (ncanref / pyref)
       var.est <- 1 / ncan + 1 / ncanref
-      lci <- est * exp(- norm.pp * sqrt(var.est))
+      lci <- est * exp(-norm.pp * sqrt(var.est))
       uci <- est * exp(norm.pp * sqrt(var.est))
     }
-    tibble(est = est, lci = lci, uci = uci) %>%
+    tibble(est = est, lci = lci, uci = uci) |>
       mutate(
-        lci = replace(.data$lci, ncan < ncan.min, NA),
-        uci = replace(.data$uci, ncan < ncan.min, NA)
+        lci = replace(.data$lci, ncan < ncan.min | py < py.min, NA),
+        uci = replace(.data$uci, ncan < ncan.min | py < py.min, NA)
       )
   }

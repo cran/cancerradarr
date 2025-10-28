@@ -7,6 +7,7 @@
 custom_ageg_aggregation(
   dat,
   ncan.min = 5,
+  py.min = 0,
   add.total = FALSE,
   ncan.lab = "ncan",
   py.lab = "py"
@@ -20,12 +21,16 @@ ageg and ncan}
 \item{ncan.min}{integer, the minimal number of cancer in
 each category}
 
+\item{py.min}{integer, the minimal number of person-years in
+each category}
+
 \item{add.total}{logical, should the 'total' category added to
 the output dataset}
 
 \item{ncan.lab}{character, the column label where cancer cases are stored}
 
-\item{py.lab}{character, the column label where (optional) population at risk are stored}
+\item{py.lab}{character, the column label where (optional) population at
+risk are stored}
 }
 \value{
 aggregated dataset where all the age group contains at least
@@ -36,12 +41,12 @@ Smart aggregation of cancer cases per age group
 }
 \examples{
 
-dat <- 
+dat <-
   dplyr::tribble(
     ~ ageg, ~ ncan,
     '00_04', 0,
     '05_09', 0,
-    '10_14', 0, 
+    '10_14', 0,
     '15_19', 0,
     '20_24', 1,
     '25_29', 2,

@@ -4,7 +4,7 @@
 \alias{age_standardized_incidence_rates}
 \title{Age-standardized incidence rate (asir)}
 \usage{
-age_standardized_incidence_rates(ncan, py, pystd, ncan.min = 5)
+age_standardized_incidence_rates(ncan, py, pystd, ncan.min = 5, py.min = 0)
 }
 \arguments{
 \item{ncan}{integer, (age-specific) number of cancers in the population of interest}
@@ -13,7 +13,9 @@ age_standardized_incidence_rates(ncan, py, pystd, ncan.min = 5)
 
 \item{pystd}{numeric, (age-specific) standard population person-years (e.g. standard world population)}
 
-\item{ncan.min}{integer, minimum number of observation required not to mask the CI's out
+\item{ncan.min}{integer, minimum number of observation required not to mask the CI's out}
+
+\item{py.min}{integer, minimum person-years required not to mask the CI's out
 
 Age-standardized incidence rate (asir) and associated 95\% confidence interval are computing assuming normal distribution of the asir.
 asir is a summary statistics that should be computed per group of individuals providing age specific counts.}

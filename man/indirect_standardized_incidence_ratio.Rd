@@ -4,7 +4,14 @@
 \alias{indirect_standardized_incidence_ratio}
 \title{Compute indirect standardized incidence ratio (sir)}
 \usage{
-indirect_standardized_incidence_ratio(ncan, py, ncanref, pyref, ncan.min = 5)
+indirect_standardized_incidence_ratio(
+  ncan,
+  py,
+  ncanref,
+  pyref,
+  ncan.min = 5,
+  py.min = 0
+)
 }
 \arguments{
 \item{ncan}{integer, (age-specific) number of cancers in the population of interest}
@@ -15,7 +22,9 @@ indirect_standardized_incidence_ratio(ncan, py, ncanref, pyref, ncan.min = 5)
 
 \item{pyref}{integer, (age-specific) person-year of the the reference population}
 
-\item{ncan.min}{integer, minimum number of observation required not to mask the CI's out
+\item{ncan.min}{integer, minimum number of observation required not to mask the CI's out}
+
+\item{py.min}{integer, minimum number of person-years required not to mask the CI's out
 
 Standardized incidence ratio (sir) and associated 95\% confidence interval are computing assuming normal distribution of the pir on the log scale.
 sir is a summary statistics that should be computed per group of individuals providing age specific counts.}

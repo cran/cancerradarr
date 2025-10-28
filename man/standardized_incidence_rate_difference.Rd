@@ -10,7 +10,8 @@ standardized_incidence_rate_difference(
   ncanref,
   pyref,
   pystd,
-  ncan.min = 5
+  ncan.min = 5,
+  py.min = 0
 )
 }
 \arguments{
@@ -24,7 +25,9 @@ standardized_incidence_rate_difference(
 
 \item{pystd}{numeric, (age-specific) standard population person-years (e.g. standard world population)}
 
-\item{ncan.min}{integer, minimum number of observation required not to mask the CI's out
+\item{ncan.min}{integer, minimum number of observation required not to mask the CI's out}
+
+\item{py.min}{integer, minimum number of person-years required not to mask the CI's out
 
 Age-standardized incidence rate difference (asird) is computed without confidence interval estimation for now.
 asird is a summary statistics that should be computed per group of individuals providing age specific counts.}

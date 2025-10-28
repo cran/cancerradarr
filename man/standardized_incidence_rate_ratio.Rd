@@ -10,7 +10,8 @@ standardized_incidence_rate_ratio(
   ncanref,
   pyref,
   pystd,
-  ncan.min = 5
+  ncan.min = 5,
+  py.min = 0
 )
 }
 \arguments{
@@ -24,7 +25,9 @@ standardized_incidence_rate_ratio(
 
 \item{pystd}{numeric, (age-specific) standard population person-years (e.g. standard world population)}
 
-\item{ncan.min}{integer, minimum number of observation required not to mask the CI's out
+\item{ncan.min}{integer, minimum number of observation required not to mask the CI's out}
+
+\item{py.min}{integer, minimum person-year required not to mask the CI's out
 
 Age-standardized incidence rate ratio (asirr) and associated 95\% confidence interval are computing Armitage and Berry (1987) formula.
 asird is a summary statistics that should be computed per group of individuals providing age specific counts.}

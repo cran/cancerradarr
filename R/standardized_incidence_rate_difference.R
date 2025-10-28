@@ -6,6 +6,7 @@
 #' @param pyref integer, (age-specific) person-year in the the reference population
 #' @param pystd numeric, (age-specific) standard population person-years (e.g. standard world population)
 #' @param ncan.min integer, minimum number of observation required not to mask the CI's out
+#' @param py.min integer, minimum number of person-years required not to mask the CI's out
 #'
 #' Age-standardized incidence rate difference (asird) is computed without confidence interval estimation for now.
 #' asird is a summary statistics that should be computed per group of individuals providing age specific counts.
@@ -26,21 +27,23 @@
 #' standardized_incidence_rate_difference(ncan, py, ncanref, pyref, pystd, ncan.min)
 #' standardized_incidence_rate_difference(ncan, py, ncanref, pyref, pystd, sum(ncan) + 1)
 standardized_incidence_rate_difference <-
-  function(ncan, py, ncanref, pyref, pystd, ncan.min = 5){
+  function(ncan, py, ncanref, pyref, pystd, ncan.min = 5, py.min = 0) {
     est <- lci <- uci <- NA
-    
+
     w <- pystd / sum(pystd, na.rm = TRUE)
-    
-    asr <- sum(ncan / py * w) 
-    var.asr <- sum(ncan / (py ^ 2) * (w ^ 2)) / (sum(w) ^ 2)
-    
-    asrref <- sum(ncanref / pyref * w) 
-    var.asrref <- sum(ncanref / (pyref ^ 2) * (w ^ 2)) / (sum(w) ^ 2)
+
+    asr <- sum(ncan / py * w)
+    var.asr <- sum(ncan / (py^2) * (w^2)) / (sum(w)^2)
+
+    asrref <- sum(ncanref / pyref * w)
+    var.asrref <- sum(ncanref / (pyref^2) * (w^2)) / (sum(w)^2)
 
     est <- asr - asrref
     var.est <- var.asr + var.asrref
 
-    if(sum(ncan, na.rm = TRUE) >= ncan.min){
+    if (
+      (sum(ncan, na.rm = TRUE) >= ncan.min) & (sum(py, na.rm = TRUE) >= py.min)
+    ) {
       conf.level <- .95
       norm.pp <- stats::qnorm(1 - (1 - conf.level) / 2)
       lci <- est - norm.pp * sqrt(var.est)

@@ -5,6 +5,7 @@
 #' @param ncanref integer, (age-specific) number of cancers in the reference population
 #' @param pyref integer, (age-specific) person-year of the the reference population
 #' @param ncan.min integer, minimum number of observation required not to mask the CI's out
+#' @param py.min integer, minimum number of person-years required not to mask the CI's out
 #'
 #' Standardized incidence ratio (sir) and associated 95% confidence interval are computing assuming normal distribution of the pir on the log scale.
 #' sir is a summary statistics that should be computed per group of individuals providing age specific counts.
@@ -26,25 +27,26 @@
 #' indirect_standardized_incidence_ratio(ncan, py, ncanref, pyref, ncan.min)
 #' indirect_standardized_incidence_ratio(ncan, py, ncanref, pyref, sum(ncan) + 1)
 indirect_standardized_incidence_ratio <-
-  function(ncan, py, ncanref, pyref, ncan.min = 5){
+  function(ncan, py, ncanref, pyref, ncan.min = 5, py.min = 0) {
     # ## Fay 1998 version with exact confidence interval calculation (based on gamma distribution)
-    # epitools::ageadjust.indirect(ncan, py, ncanref, pyref) %>%
-    #   extract2('sir') %>%
-    #   t() %>%
-    #   as_tibble() %>%
+    # epitools::ageadjust.indirect(ncan, py, ncanref, pyref) |>
+    #   extract2('sir') |>
+    #   t() |>
+    #   as_tibble() |>
     #   select(est = sir, lci = lci, uci = uci)
     est <- lci <- uci <- NA
 
     n.obs <- sum(ncan, na.rm = TRUE)
     n.exp <- sum(py * ncanref / pyref)
+    n.py <- sum(py, na.rm = TRUE)
 
-    if(!is.na(n.exp)){
-      if(n.exp > 0){
+    if (!is.na(n.exp)) {
+      if (n.exp > 0) {
         est <- n.obs / n.exp
-        if(n.obs >= ncan.min){
+        if (n.obs >= ncan.min & (n.py >= py.min)) {
           conf.level <- .95
           norm.pp <- stats::qnorm(1 - (1 - conf.level) / 2)
-          var.est <- n.obs / (n.exp ^ 2)
+          var.est <- n.obs / (n.exp^2)
           lci <- est - norm.pp * sqrt(var.est)
           uci <- est + norm.pp * sqrt(var.est)
         }

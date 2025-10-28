@@ -8,6 +8,7 @@ create_canradar_summary_file(
   filename.in,
   filename.out,
   ncan.min = 5,
+  py.min = 100,
   include.by.cob.stat = TRUE,
   verbose = TRUE
 )
@@ -18,6 +19,8 @@ create_canradar_summary_file(
 \item{filename.out}{file path, the file where summary .xlsx file will be save}
 
 \item{ncan.min}{integer, the minimum number of cancer per age group o be displayed}
+
+\item{py.min}{integer, the minimum number of person-years per age group to be considered during the aggregation step (default is 100)}
 
 \item{include.by.cob.stat}{logical, (TRUE by default) should the statistic per country-of-birth  be computed and included in the output file.}
 
@@ -35,7 +38,7 @@ Compute summary statistics from 5 years age-group cancer registry data
   ## (e.g. file.filled <- "cancerRADAR_input.xlsx")
   file.in <- system.file("extdata", "ex_cancerRADAR_input_filled.xlsx", package = "cancerradarr")
   file.out <- 'cancerRADAR_input.xlsx'
-  ## for cancer radar data submission, we advise to use the parameter ncan.min = 5 and 
+  ## for cancer radar data submission, we advise to use the parameter ncan.min = 5 and
   ## include.by.cob.stat = TRUE
   create_canradar_summary_file(file.in, file.out, ncan.min = 20, include.by.cob.stat = FALSE)
   ## remove the file to pass package computation tests

@@ -39,8 +39,8 @@
 #' Burden of cancer aggregation category used for cancerradarr
 #'
 #'
-#' A multi-columns dataset containing for all the countries of birth (as ISO3 code), sex and cancer type 
-#' combinations the quariles of cancer burden in country of origin burden. The quariles (`0%-24%`, 
+#' A multi-columns dataset containing for all the countries of birth (as ISO3 code), sex and cancer type
+#' combinations the quariles of cancer burden in country of origin burden. The quariles (`0%-24%`,
 #' `25%-49%`, `50%-74%` and `75-100%`) are based on the ASIR from GLOBOCAN 2022.
 #'
 #' @concept data
@@ -59,13 +59,13 @@
 #' European countries age-specific cancer burden from GLOBOCAN 2022
 #'
 #'
-#' A multi-columns dataset containing for all the European countries (UN definition) (as ISO3 code), sex and cancer type 
+#' A multi-columns dataset containing for all the European countries (UN definition) (as ISO3 code), sex and cancer type
 #' combinations the number of cases and population at risk estimated in GLOBOCAN 2022. This data
-#' are used in `cancerradarr` to compute the relative index on a standard reference population that 
+#' are used in `cancerradarr` to compute the relative index on a standard reference population that
 #' could be more easily compared between registries.
-#' In addition to individual European countries, aggregated areas such as 
+#' In addition to individual European countries, aggregated areas such as
 #' E27 (European Union 27 countries) and EUN (all the UN European countries)
-#' are stred in the dataset 
+#' are stred in the dataset
 #'
 #' @concept data
 #' @format
@@ -102,8 +102,8 @@
 
 #' Pre-computed choped combination for vectors size 1 to 18
 #'
-#' This is a list containing all the possible combination of slices to chop 
-#' vectors of size 1 to 18. It is useful to compute custom age group 
+#' This is a list containing all the possible combination of slices to chop
+#' vectors of size 1 to 18. It is useful to compute custom age group
 #' aggregation to ensure we are not disclosing age group with too few cancer
 #' cases.
 #'

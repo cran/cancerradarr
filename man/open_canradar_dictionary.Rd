@@ -17,7 +17,7 @@ Note that a temporary copy of the dictionary is created on your hard drive to pr
 unwanted file modification.
 }
 \examples{
-\donttest{
+\dontrun{
    open_canradar_dictionary()
 }
 }
