@@ -39,7 +39,7 @@ Depending on the availability of the data at the cancer registry the excel file 
 2. number of deaths due to the respective cancer (this will be requested at a later stage of the project)
 3. population-at-risk*
 
-*Data on the population of the area covered by each registry are optional. If population at risk is not available we will use indirect methode Proportional Incidence Ratio (PIR).
+*Data on the population of the area covered by each registry are optional. If population at risk is not available we will use indirect method Proportional Incidence Ratio (PIR).
 
 **Type of cancer for which data will be collected:**
 
@@ -51,7 +51,7 @@ Depending on the availability of the data at the cancer registry the excel file 
 6. C33-34: Lung cancer
 7. All cancers excl. non-melanoma skin cancer (C00-97/C44)
 
-**Depenidng on the availability, three input files may be requested for the following three time periods:**
+**Depending on the availability, three input files may be requested for the following three time periods:**
 
 - CI5-XII 2018-2022
 -	CI5-XII 2013-2017

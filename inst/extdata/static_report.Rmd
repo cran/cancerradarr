@@ -73,38 +73,42 @@ The proportion of missing data in the cancer registry should ideally be minimize
 
 
 ```{r, echo=TRUE, rows.print = 10}
-dat.01.any |>
-  filter(
-    ageg == 'total',
-    ref == 'registry',
-    index %in% c('n', 'py', 'n_mv', 'n_dco')
-  ) |>
-  select(- c('uci', 'lci')) |>
-  pivot_wider(names_from = c('index', 'reg_label'), values_from = 'est') |>
-  group_by(sex, can) |>
-  mutate(
-    py_Missing = replace_na(py_Missing, 0),
-    n_Missing = replace_na(n_Missing, 0),
-    n_dco_Missing = replace_na(n_dco_Missing, 0),
-    n_mv_Missing = replace_na(n_mv_Missing, 0),
-    perc_n_Missing = round(n_Missing / (n_Missing + n_migrant + `n_general population`) * 100, 1),
-    perc_py_Missing = round(py_Missing / (py_Missing + py_migrant + `py_general population`) * 100, 1),
-    perc_n_dco_Missing = round(n_dco_Missing / (n_dco_Missing + n_dco_migrant + `n_dco_general population`) * 100, 1),
-    perc_n_mv_Missing = round(n_mv_Missing / (n_mv_Missing + n_mv_migrant + `n_mv_general population`) * 100, 1),
-    tot_n = n_Missing + n_migrant + `n_general population`,
-    tot_n_dco = n_dco_Missing + n_dco_migrant + `n_dco_general population`,
-    tot_n_mv = n_mv_Missing + n_mv_migrant + `n_mv_general population`,
-    tot_py = py_Missing + py_migrant + `py_general population`
-  ) |>
-  select(
-    sex, can, 
-    `n tot` = tot_n, `% n missing` = perc_n_Missing, 
-    `py tot` = tot_py, `% py missing` = perc_py_Missing,
-    `n dco tot` = tot_n_dco, `% n dco missing` = perc_n_dco_Missing,
-    `n mv tot` = tot_n_mv, `% n mv missing` = perc_n_mv_Missing
+if('Missing' %in% levels(dat.01.any$reg_label)) {
+  dat.01.any |>
+    filter(
+      ageg == 'total',
+      ref == 'registry',
+      index %in% c('n', 'py', 'n_mv', 'n_dco')
     ) |>
-  arrange(can, sex) |>
-  DT::datatable()
+    select(- c('uci', 'lci')) |>
+    pivot_wider(names_from = c('index', 'reg_label'), values_from = 'est') |>
+    group_by(sex, can) |>
+    mutate(
+      py_Missing = replace_na(py_Missing, 0),
+      n_Missing = replace_na(n_Missing, 0),
+      n_dco_Missing = replace_na(n_dco_Missing, 0),
+      n_mv_Missing = replace_na(n_mv_Missing, 0),
+      perc_n_Missing = round(n_Missing / (n_Missing + n_migrant + `n_general population`) * 100, 1),
+      perc_py_Missing = round(py_Missing / (py_Missing + py_migrant + `py_general population`) * 100, 1),
+      perc_n_dco_Missing = round(n_dco_Missing / (n_dco_Missing + n_dco_migrant + `n_dco_general population`) * 100, 1),
+      perc_n_mv_Missing = round(n_mv_Missing / (n_mv_Missing + n_mv_migrant + `n_mv_general population`) * 100, 1),
+      tot_n = n_Missing + n_migrant + `n_general population`,
+      tot_n_dco = n_dco_Missing + n_dco_migrant + `n_dco_general population`,
+      tot_n_mv = n_mv_Missing + n_mv_migrant + `n_mv_general population`,
+      tot_py = py_Missing + py_migrant + `py_general population`
+    ) |>
+    select(
+      sex, can, 
+      `n tot` = tot_n, `% n missing` = perc_n_Missing, 
+      `py tot` = tot_py, `% py missing` = perc_py_Missing,
+      `n dco tot` = tot_n_dco, `% n dco missing` = perc_n_dco_Missing,
+      `n mv tot` = tot_n_mv, `% n mv missing` = perc_n_mv_Missing
+      ) |>
+    arrange(can, sex) |>
+    DT::datatable()
+} else {
+  cat('\n No missing data detected!')
+}
 ```
 
 ### Percentage of DCO and MV
@@ -140,13 +144,13 @@ dat.01.any |>
   DT::datatable()
 ```
 
-### Overall number of cancer among individuals with a migration background.
+### overalll number of cancer among individuals with a migration background.
 
 **Interpretation:** 
 This table presents the total number of cancer cases by type, over a five-year period, among individuals with a migration background.
 
 **Points to consider:**
-This table is useful for consistency checks—for example, verifying that the total number of cancer cases among individuals with a migration background does not exceed the overall totals in the general population.
+This table is useful for consistency checks—for example, verifying that the total number of cancer cases among individuals with a migration background does not exceed the overalll totals in the general population.
 
 ```{r, echo=TRUE, rows.print = 10}
 dat.01.any |>
@@ -363,7 +367,7 @@ dat.pir |>
 ```
 
 
-### Overall burden of cancer in the migrant population
+### overalll burden of cancer in the migrant population
 
 In the following graphs, you will see the total number of cancer cases across various categories. For the graphs showing 'all cancers,' we will provide explanations for interpreting each graph, along with key points to consider as you review the data.
 The graphs are organized as follows:

@@ -1,7 +1,7 @@
 #' Smart aggregation of cancer cases per age group
 #'
 #' @param dat tibble, a single cancer/sex/country tibble containing
-#'        cancer cases from a registry. It sould contains the column
+#'        cancer cases from a registry. It should contains the column
 #'        ageg and ncan
 #' @param ncan.min integer, the minimal number of cancer in
 #'        each category
@@ -125,8 +125,8 @@ custom_ageg_aggregation <- function(
   }
 
   ## deal with no data at all case and
-  ## less than n.can.min cancer overall and
-  ## less than py.min person-years overall
+  ## less than n.can.min cancer overalll and
+  ## less than py.min person-years overalll
   small.pop.test <-
     if (has.py) {
       (sum(dat[[ncan.lab]], na.rm = TRUE) < ncan.min) |

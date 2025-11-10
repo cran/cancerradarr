@@ -24,6 +24,8 @@ create_static_report <-
       params = list(
         filename.out = filename.out
       ),
-      output_dir = dirname(filename.out)
+      output_dir = dirname(filename.out),
+      knit_root_dir = dirname(filename.out),
+      intermediates_dir = dirname(filename.out)
     )
   }

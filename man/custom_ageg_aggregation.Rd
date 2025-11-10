@@ -15,7 +15,7 @@ custom_ageg_aggregation(
 }
 \arguments{
 \item{dat}{tibble, a single cancer/sex/country tibble containing
-cancer cases from a registry. It sould contains the column
+cancer cases from a registry. It should contains the column
 ageg and ncan}
 
 \item{ncan.min}{integer, the minimal number of cancer in

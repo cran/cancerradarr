@@ -1,7 +1,7 @@
 #' Compute proportional rates
 #'
 #' @param ncan integer, number of cancer of interest
-#' @param ntot integer, overal number of cancer
+#' @param ntot integer, overall number of cancer
 #' @param ncan.min integer, minimum number of observation required not to mask the CI's out
 #'
 #' Proportional incidence rates and associated 95% confidence interval are computing assuming a Binomial distribution and the Clopper and Pearson (1934) procedure.

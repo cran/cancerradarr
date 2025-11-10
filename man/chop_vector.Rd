@@ -10,7 +10,7 @@ chop_vector(vect.size = 3)
 \item{vect.size}{int, the size of the vector}
 }
 \value{
-a matrix containing all the possible slices to chope a vector per line
+a matrix containing all the possible slices to chop a vector per line
 }
 \description{
 Generate all the possible combinations of slices in a chopped vector

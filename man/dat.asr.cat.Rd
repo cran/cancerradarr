@@ -9,7 +9,7 @@ A data frame with 2,220 rows and 5 columns:
 \describe{
 \item{cob_iso3}{Country ISO3 code}
 \item{sex}{targeted sex}
-\item{can}{the caqncer type}
+\item{can}{the cancer type}
 \item{asr}{GLOBOCAN 2022 age-standardized cancer incidence rate}
 \item{asr_rank_cat}{GLOBOCAN 2022 age-standardized cancer incidence rate quartile category}
 ...
@@ -20,7 +20,7 @@ dat.asr.cat
 }
 \description{
 A multi-columns dataset containing for all the countries of birth (as ISO3 code), sex and cancer type
-combinations the quariles of cancer burden in country of origin burden. The quariles (\verb{0\%-24\%},
+combinations the quartiles of cancer burden in country of origin burden. The quartiles (\verb{0\%-24\%},
 \verb{25\%-49\%}, \verb{50\%-74\%} and \verb{75-100\%}) are based on the ASIR from GLOBOCAN 2022.
 }
 \concept{data}

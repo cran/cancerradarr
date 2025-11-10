@@ -3,7 +3,7 @@
 \docType{data}
 \name{chopped.vector.list}
 \alias{chopped.vector.list}
-\title{Pre-computed choped combination for vectors size 1 to 18}
+\title{Pre-computed chopped combination for vectors size 1 to 18}
 \format{
 A 18 item list:
 \describe{

@@ -9,7 +9,7 @@ proportional_rates(ncan, ntot, ncan.min = 5)
 \arguments{
 \item{ncan}{integer, number of cancer of interest}
 
-\item{ntot}{integer, overal number of cancer}
+\item{ntot}{integer, overall number of cancer}
 
 \item{ncan.min}{integer, minimum number of observation required not to mask the CI's out
 

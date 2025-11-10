@@ -2,7 +2,7 @@
 #'
 #' @param vect.size int, the size of the vector
 #'
-#' @return a matrix containing all the possible slices to chope a vector per line
+#' @return a matrix containing all the possible slices to chop a vector per line
 #' @export
 #'
 #' @examples

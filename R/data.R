@@ -40,7 +40,7 @@
 #'
 #'
 #' A multi-columns dataset containing for all the countries of birth (as ISO3 code), sex and cancer type
-#' combinations the quariles of cancer burden in country of origin burden. The quariles (`0%-24%`,
+#' combinations the quartiles of cancer burden in country of origin burden. The quartiles (`0%-24%`,
 #' `25%-49%`, `50%-74%` and `75-100%`) are based on the ASIR from GLOBOCAN 2022.
 #'
 #' @concept data
@@ -49,7 +49,7 @@
 #' \describe{
 #'   \item{cob_iso3}{Country ISO3 code}
 #'   \item{sex}{targeted sex}
-#'   \item{can}{the caqncer type}
+#'   \item{can}{the cancer type}
 #'   \item{asr}{GLOBOCAN 2022 age-standardized cancer incidence rate}
 #'   \item{asr_rank_cat}{GLOBOCAN 2022 age-standardized cancer incidence rate quartile category}
 #'   ...
@@ -74,7 +74,7 @@
 #'   \item{cob_iso3}{Country ISO3 code}
 #'   \item{sex}{targeted sex}
 #'   \item{ageg}{targeted age group}
-#'   \item{can}{the caqncer type}
+#'   \item{can}{the cancer type}
 #'   \item{ncanref}{number of cancer cases estimated in GLOBOCAN 2022}
 #'   \item{pyref}{population at risk estimated in GLOBOCAN 2022}
 #'   ...
@@ -100,7 +100,7 @@
 # "ex_cancerRADAR_input_filled"
 #
 
-#' Pre-computed choped combination for vectors size 1 to 18
+#' Pre-computed chopped combination for vectors size 1 to 18
 #'
 #' This is a list containing all the possible combination of slices to chop
 #' vectors of size 1 to 18. It is useful to compute custom age group

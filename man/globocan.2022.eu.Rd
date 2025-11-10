@@ -10,7 +10,7 @@ A data frame with 6,384 rows and 6 columns:
 \item{cob_iso3}{Country ISO3 code}
 \item{sex}{targeted sex}
 \item{ageg}{targeted age group}
-\item{can}{the caqncer type}
+\item{can}{the cancer type}
 \item{ncanref}{number of cancer cases estimated in GLOBOCAN 2022}
 \item{pyref}{population at risk estimated in GLOBOCAN 2022}
 ...
