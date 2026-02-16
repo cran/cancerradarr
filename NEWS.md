@@ -1,3 +1,9 @@
+# cancerradarr 3.0.0
+
+# cancerradarr 2.2.0
+
+* handle sparsly defined person-years
+
 # cancerradarr 1.1.2
 
 * remove the missing cob counts from migrant population

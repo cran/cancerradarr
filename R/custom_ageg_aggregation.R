@@ -90,36 +90,41 @@ custom_ageg_aggregation <- function(
     )
 
   ## check if py column exists
-  has.py <- py.lab %in% colnames(dat)
+  has.py <- (py.lab %in% colnames(dat)) && (!all(is.na(dat[[py.lab]])))
 
   i.first <- i.last <- NA
   n.bigger <- 0
   for (i in seq_along(ageg.in.list)) {
     i.count <- dat |> filter(.data$ageg == ageg.in.list[i]) |> pull(ncan.lab)
+    if (is.na(i.count)) {
+      i.count <- 0
+    }
     i.py <- if (has.py) {
       dat |> filter(.data$ageg == ageg.in.list[i]) |> pull(py.lab)
     } else {
       NA
     }
-    if (!is.na(i.count)) {
+    if (!is.na(i.count) || (has.py && !is.na(i.py))) {
       ## detect the first non null count
-      if (is.na(i.first) & i.count > 0) {
+      if (is.na(i.first) & (i.count > 0 || (has.py && i.py > 0))) {
         i.first <- i
       }
       ## detect the last non null count
-      if (i.count > 0) {
+      if (i.count > 0 || (has.py && i.py > 0)) {
         i.last <- i
       }
       ## count the number of cells >= ncan.min
       if (has.py) {
         if (
-          (i.count >= ncan.min) &
-            (i.py >= py.min)
+          isTRUE(
+            (i.count >= ncan.min) &
+              (i.py >= py.min)
+          )
         ) {
           n.bigger <- n.bigger + 1
         }
       } else {
-        if (i.count >= ncan.min) n.bigger <- n.bigger + 1
+        if (isTRUE((i.count >= ncan.min))) n.bigger <- n.bigger + 1
       }
     }
   }
@@ -281,8 +286,47 @@ custom_ageg_aggregation <- function(
     unlist()
 
   ## aggregate the input dataset with the best combination possible
+  ## IMPORTANT: Filter dat to only include age groups that are in ageg.in.list
+  ## This prevents errors when the input data has unexpected age groups
+  dat.filtered <- dat |>
+    dplyr::filter(.data$ageg %in% ageg.in.list)
+
+  ## Check for duplicate age groups in the filtered data
+  if (nrow(dat.filtered) != length(unique(dat.filtered$ageg))) {
+    duplicate_ages <- dat.filtered$ageg[duplicated(dat.filtered$ageg)]
+    stop(
+      "Duplicate age groups detected in input data!\n",
+      "The following age groups appear more than once: ",
+      paste(unique(duplicate_ages), collapse = ", "),
+      "\n",
+      "All age groups in this combination: ",
+      paste(dat.filtered$ageg, collapse = ", "),
+      "\n",
+      "This indicates a data quality issue in your input file. ",
+      "Each age group should appear only once per sex/cancer/country-of-birth combination."
+    )
+  }
+
+  ## Check if the filtered data has the same number of rows as the aggregation vector
+  if (nrow(dat.filtered) != length(ageg.aggr.vect.02)) {
+    stop(
+      "Data filtering error: Expected ",
+      length(ageg.aggr.vect.02),
+      " age groups but found ",
+      nrow(dat.filtered),
+      " rows in filtered data.\n",
+      "Age groups in input data: ",
+      paste(unique(dat$ageg), collapse = ", "),
+      "\n",
+      "Expected age groups after filtering: ",
+      paste(ageg.in.list, collapse = ", "),
+      "\n",
+      "This suggests your input file has unexpected age groups for this combination."
+    )
+  }
+
   dat.out <-
-    dat |>
+    dat.filtered |>
     dplyr::mutate(ageg.aggr = ageg.aggr.vect.02) |>
     dplyr::group_by(.data$ageg.aggr) |>
     dplyr::summarise(

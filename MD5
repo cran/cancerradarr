@@ -1,15 +1,16 @@
-61fe53e6de337241c2c0fb7ba898adf4 *DESCRIPTION
-d48c0c6dccc8545bd689d684689eb407 *NAMESPACE
-122e5b82217a0bb707dd7f12806b9ade *NEWS.md
+b9b5fc4057678c2fb78667f4eaf4f0af *DESCRIPTION
+166240280d5ca86af7059c9eb8fd8c31 *NAMESPACE
+786a346870e30d9ef085bc2e6c6fae2f *NEWS.md
 a05aec3cd08e247d7b3b50564b4b573e *R/age_standardized_incidence_rates.R
 56658d5f14eab08e4b075f789d13e093 *R/ageg_overlap_utils.R
 73fdea97ed70c9faa078ab95dff1bfb8 *R/aggregated_ageg_name.R
 ae67425a8aafa497abfec4a660236d25 *R/chop_vector.R
-2c170ec3a52d77326bc028e2e024b175 *R/create_canradar_summary_file.R
+410c2ebd4386471428cbebd76023ede8 *R/create_canradar_summary_file.R
 4a291b44a409d1da62cb6029be86f6fa *R/create_registry_input_file.R
 de97ed330bf4fba4182bbaf114a5751a *R/create_static_report.R
-b46c0b6cd012ea155a3e1b08323f2402 *R/custom_ageg_aggregation.R
+f5e7d38484b267b31c00506462635469 *R/custom_ageg_aggregation.R
 000473f2bf28b64d4e4c1171f4695ad3 *R/data.R
+7c0a17ce451f6a96d9e08e248533f6e5 *R/diagnose_input_file.R
 16eecce4adc917cd1e638062e980b723 *R/incidence_rates.R
 ccee70999491cd57e81b730e689c1cd7 *R/incidence_rates_difference.R
 7c37171f3e348579c914032382e64a59 *R/incidence_rates_ratio.R
@@ -23,6 +24,7 @@ c59dc8ffed099181c5f8fe1bf570f0d3 *R/read_cancerradar_output_01.R
 ee2b2f01e0a5ad151788a34030f2cb64 *R/run_dynamic_report.R
 d9d0a69bc658d3bf79b2c2609e63b4e2 *R/standardized_incidence_rate_difference.R
 e29b9c0cc4ae64e4acbebcfec8873b98 *R/standardized_incidence_rate_ratio.R
+4af257831f8aa365f38943ccc20fa404 *R/validate_age_groups.R
 4a7e787828f147c7d3370cde9cf93311 *README.md
 c0c875d4f40d8bbf25ca282158feda52 *build/vignette.rds
 cc46b8bbf32163fba5e7f59261da598b *data/chopped.vector.list.rda
@@ -55,6 +57,7 @@ c0a097707bbe597db006175a04b774c0 *man/custom_ageg_aggregation.Rd
 9df5f8998e3843dd9e2b38cfe9a9e3ec *man/dat.aggr.Rd
 3ab8a5450dee7a10574532c719467d21 *man/dat.asr.cat.Rd
 f4129328a87b671ca1ee948dc6c788da *man/dat.cob.Rd
+c264a73a1f8e5120cdf88ece209de498 *man/diagnose_input_file.Rd
 9978d2d4801da407b5b6cebd745bdb65 *man/globocan.2022.eu.Rd
 3f3a325a23230315df61e8bdfc4c197f *man/incidence_rates.Rd
 ca20c50bb0d741f852ad9a8ea1a2d946 *man/incidence_rates_difference.Rd
@@ -69,6 +72,7 @@ c06ddd9c74acaf71ee286c70c6748abc *man/incidence_rates_ratio.Rd
 29e8960b4816128556a8348903056464 *man/run_dynamic_report.Rd
 7b8d7e0699648cd63b6e04a104d27b04 *man/standardized_incidence_rate_difference.Rd
 c7c647d4251f09177e923faf0c71a4d0 *man/standardized_incidence_rate_ratio.Rd
+6613dffa646fe793968d502b8548f398 *man/validate_age_groups.Rd
 7142652cc08325984f690cb8b845a28f *tests/testthat.R
 39959c02da9e8031b29bed42228a558a *tests/testthat/test-ageg_overlap_utils.R
 6be771d7b48b40542f1f3373a14145dc *tests/testthat/test-chop_vector.R

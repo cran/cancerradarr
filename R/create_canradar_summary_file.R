@@ -227,6 +227,9 @@ create_canradar_summary_file <-
       ) |>
       mutate(ncanref = round(.data$ncanref), pyref = round(.data$pyref))
 
+    # check the age group validity
+    validate_age_groups(dat.ref.in.long)
+
     if (verbose) {
       cat('\n> Reference population aggregation\n')
     }
@@ -307,30 +310,55 @@ create_canradar_summary_file <-
         ) |>
         select(-c('ncan.all.na', 'py.all.na'))
 
+      # check the age group validity
+      validate_age_groups(dat.in.long)
+
+      ## >>> debug
       dat.in.long.aggr <-
-        dat.in.long |>
-        dplyr::filter(
-          !(.data$ageg %in% c('total', '00_04', '05_09', '10_14', '15_19'))
-        ) |>
-        # dplyr::filter(ageg != 'total') |>
-        tidyr::nest(data = -all_of(c(aggr.level, 'sex', 'can'))) |>
-        dplyr::mutate(
-          data.aggr = purrr::map(
-            .data$data,
-            ~ custom_ageg_aggregation(
-              .x |> dplyr::arrange('ageg'),
-              ncan.min = ncan.min,
-              py.min = py.min,
-              add.total = TRUE
-            ),
-            .progress = list(
-              name = 'custom aggregation'
-            )
-          )
-        ) |>
-        dplyr::select(-'data') |>
-        tidyr::unnest('data.aggr') |>
-        dplyr::rename('ageg' = 'ageg.aggr')
+        try(
+          dat.in.long |>
+            dplyr::filter(
+              !(.data$ageg %in% c('total', '00_04', '05_09', '10_14', '15_19'))
+            ) |>
+            # dplyr::filter(ageg != 'total') |>
+            tidyr::nest(data = -all_of(c(aggr.level, 'sex', 'can'))) |>
+            dplyr::mutate(
+              data.aggr = purrr::map(
+                .data$data,
+                ~ {
+                  custom_ageg_aggregation(
+                    .x |> dplyr::arrange('ageg'),
+                    ncan.min = ncan.min,
+                    py.min = py.min,
+                    add.total = TRUE
+                  )
+                },
+                .progress = list(
+                  name = 'custom aggregation'
+                )
+              )
+            ) |>
+            dplyr::select(-'data') |>
+            tidyr::unnest('data.aggr') |>
+            dplyr::rename('ageg' = 'ageg.aggr')
+        )
+
+      if (inherits(dat.in.long.aggr, 'try-error')) {
+        debug.dat <-
+          dat.in.long |>
+          dplyr::filter(
+            !(.data$ageg %in% c('total', '00_04', '05_09', '10_14', '15_19'))
+          ) |>
+          tidyr::nest(data = -all_of(c(aggr.level, 'sex', 'can')))
+
+        saveRDS(debug.dat, 'debug-dat.rds')
+
+        stop(
+          'Error during the custom age group aggregation step. debug-dat.rds object has been created to help to grasp the error.'
+        )
+      }
+
+      ## <<< debug
 
       ## Chapter 1.1 - 	Incidence Rate (ir) by age-group #############################
       if (verbose) {
@@ -685,82 +713,82 @@ create_canradar_summary_file <-
       ## For the standard error the binomial distribution was used
       std.pop <-
         tribble(
-          ~ageg,
-          ~ageg10,
-          ~ageg20,
-          ~pystd,
-          '00_04',
-          '00_09',
-          '00_19',
-          12000,
-          '05_09',
-          '00_09',
-          '00_19',
-          10000,
-          '10_14',
-          '10_19',
-          '00_19',
-          9000,
-          '15_19',
-          '10_19',
-          '00_19',
-          9000,
-          '20_24',
-          '20_29',
-          '20_39',
-          8000,
-          '25_29',
-          '20_29',
-          '20_39',
-          8000,
-          '30_34',
-          '30_39',
-          '20_39',
-          6000,
-          '35_39',
-          '30_39',
-          '20_39',
-          6000,
-          '40_44',
-          '40_49',
-          '40_59',
-          6000,
-          '45_49',
-          '40_49',
-          '40_59',
-          6000,
-          '50_54',
-          '50_59',
-          '40_59',
-          5000,
-          '55_59',
-          '50_59',
-          '40_59',
-          4000,
-          '60_64',
-          '60_69',
-          '60_79',
-          4000,
-          '65_69',
-          '60_69',
-          '60_79',
-          3000,
-          '70_74',
-          '70_79',
-          '60_79',
-          2000,
-          '75_79',
-          '70_79',
-          '60_79',
-          1000,
-          '80_84',
-          '80',
-          '80',
-          500,
-          '85',
-          '80',
-          '80',
-          500
+          ~ageg   ,
+          ~ageg10 ,
+          ~ageg20 ,
+          ~pystd  ,
+          '00_04' ,
+          '00_09' ,
+          '00_19' ,
+            12000 ,
+          '05_09' ,
+          '00_09' ,
+          '00_19' ,
+            10000 ,
+          '10_14' ,
+          '10_19' ,
+          '00_19' ,
+             9000 ,
+          '15_19' ,
+          '10_19' ,
+          '00_19' ,
+             9000 ,
+          '20_24' ,
+          '20_29' ,
+          '20_39' ,
+             8000 ,
+          '25_29' ,
+          '20_29' ,
+          '20_39' ,
+             8000 ,
+          '30_34' ,
+          '30_39' ,
+          '20_39' ,
+             6000 ,
+          '35_39' ,
+          '30_39' ,
+          '20_39' ,
+             6000 ,
+          '40_44' ,
+          '40_49' ,
+          '40_59' ,
+             6000 ,
+          '45_49' ,
+          '40_49' ,
+          '40_59' ,
+             6000 ,
+          '50_54' ,
+          '50_59' ,
+          '40_59' ,
+             5000 ,
+          '55_59' ,
+          '50_59' ,
+          '40_59' ,
+             4000 ,
+          '60_64' ,
+          '60_69' ,
+          '60_79' ,
+             4000 ,
+          '65_69' ,
+          '60_69' ,
+          '60_79' ,
+             3000 ,
+          '70_74' ,
+          '70_79' ,
+          '60_79' ,
+             2000 ,
+          '75_79' ,
+          '70_79' ,
+          '60_79' ,
+             1000 ,
+          '80_84' ,
+          '80'    ,
+          '80'    ,
+              500 ,
+          '85'    ,
+          '80'    ,
+          '80'    ,
+              500
         )
 
       compute_age_standardized_incidence_rates <-
@@ -1926,21 +1954,15 @@ create_canradar_summary_file <-
     list_log_out <-
       list(
         log = tribble(
-          ~LOG,
-          paste0('date: ', date()),
-          paste0(
-            'cancerradar version: ',
-            utils::packageVersion('cancerradarr')
-          ),
-          paste0('input file: ', filename.in),
-          paste0('number of cases threshold: ', ncan.min),
-          paste0('number of person-year threshold: ', py.min),
-          paste0(
-            'stratification per country of birth included: ',
-            include.by.cob.stat
-          ),
-          paste0('R version: ', R.version$version.string),
-          paste0('OS: ', R.version$platform),
+          ~LOG                                                                          ,
+          paste0('date: ', date())                                                      ,
+          paste0('cancerradar version: ', utils::packageVersion('cancerradarr'))        ,
+          paste0('input file: ', filename.in)                                           ,
+          paste0('number of cases threshold: ', ncan.min)                               ,
+          paste0('number of person-year threshold: ', py.min)                           ,
+          paste0('stratification per country of birth included: ', include.by.cob.stat) ,
+          paste0('R version: ', R.version$version.string)                               ,
+          paste0('OS: ', R.version$platform)                                            ,
           paste0('user: ', Sys.info()[["user"]])
         )
       )
